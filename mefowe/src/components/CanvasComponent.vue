@@ -1,6 +1,5 @@
 <template>
-  <div class="hello">
-    <editor-content :editor="editor" />
+  <div class="canvas">
     <button @click="addRect">Add Rect</button>
     <v-stage
       ref="stage"
@@ -31,26 +30,17 @@
 
 <script lang="ts">
 import { defineComponent, ref } from "vue";
-import { StarterKit } from "@tiptap/starter-kit/src/starter-kit";
-import { useEditor, EditorContent } from "@tiptap/vue-3/src";
 import { Rect } from "konva/lib/shapes/Rect";
 
 export default defineComponent({
-  name: "Task",
+  name: "Canvas",
   components: {
-    EditorContent,
   },
   props: {
     msg: String,
   },
-  setup() {
-    const editor = useEditor({
-      content:
-        "<p>A Vue.js wrapper component for tiptap to use <code>v-model</code>.</p>",
-      extensions: [StarterKit],
-    });
-
-    const width = window.innerWidth;
+  setup() {   
+    const width = 715;
     const height = window.innerHeight;
 
     const list = ref<Rect[]>([]);
@@ -89,7 +79,6 @@ export default defineComponent({
     };
 
     return {
-      editor,
       list,
       dragItemId,
       configKonva,
@@ -103,6 +92,11 @@ export default defineComponent({
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+.canvas{
+  height: 100%;
+  margin: 20px;
+  background-color: #21333C;
+}
 h3 {
   margin: 40px 0 0;
 }

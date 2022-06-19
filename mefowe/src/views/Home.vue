@@ -1,18 +1,38 @@
 <template>
   <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png" />
-    <HelloWorld />
+    <div class="home__code">
+      <CodeComponent />
+    </div>
+    <div class="home__canvas">
+      <CanvasComponent />
+    </div>    
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import HelloWorld from "@/components/HelloWorld.vue"; // @ is an alias to /src
+import CodeComponent from "@/components/CodeComponent.vue";// @ is an alias to /src
+import CanvasComponent from "@/components/CanvasComponent.vue"; // @ is an alias to /src
 
 export default defineComponent({
   name: "Home",
   components: {
-    HelloWorld,
+    CodeComponent,
+    CanvasComponent
   },
 });
 </script>
+
+
+<style scoped>
+.home{
+  display: flex;
+  padding: 30px 50px;
+}
+.home__code{
+  min-width: 30%; 
+}
+.home__canvas{
+  min-width: 70%; 
+}
+</style>
