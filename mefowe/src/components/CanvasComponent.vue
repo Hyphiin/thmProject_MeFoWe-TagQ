@@ -82,7 +82,7 @@ export default defineComponent({
           id: Math.round(Math.random() * 10000).toString(),
           x: Math.round(Math.random() * width),
           y: Math.round(Math.random() * height),
-          fill: "red",
+          fill: Util.getRandomColor(),
           width: 100,
           height: 100,
           draggable: true,
@@ -105,8 +105,8 @@ export default defineComponent({
         shape.scaleX = e.target.scaleX();
         shape.scaleY = e.target.scaleY();
 
-        // change fill
-        shape.fill = Util.getRandomColor();
+        // // change fill
+        // shape.fill = Util.getRandomColor();
       }
     };
 
