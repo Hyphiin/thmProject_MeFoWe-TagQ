@@ -101,7 +101,7 @@ export default defineComponent({
       extensions: [Document, Paragraph, Text, Code],
     });
 
-    const template = ref<string>("");
+    const template = ref<string>("Awaiting Template... BiBaBub");
 
     onMounted(async () => {
       template.value = await generateTemplate(
