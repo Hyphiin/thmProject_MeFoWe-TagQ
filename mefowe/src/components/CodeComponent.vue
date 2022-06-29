@@ -1,7 +1,7 @@
 <template>
   <div class="code">
     <pre><code>{{template}}</code></pre>
-    <editor-content :editor="editor" />
+    <!-- <editor-content :editor="editor" /> -->
   </div>
 </template>
 
@@ -18,7 +18,7 @@ import { generateTemplate } from "@/openAi/openAi";
 export default defineComponent({
   name: "Code",
   components: {
-    EditorContent,
+    // EditorContent,
   },
   props: {
     msg: String,
@@ -105,7 +105,7 @@ export default defineComponent({
 
     onMounted(async () => {
       template.value = await generateTemplate(
-        "write a html layout for a ice cream shop"
+        "write a html layout for a ice cream shop with plain css"
       );
     });
 
