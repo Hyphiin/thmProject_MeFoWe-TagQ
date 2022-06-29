@@ -1,6 +1,8 @@
 <template>
   <div class="canvas">
     <button @click="addRect">Add Rect</button>
+    <button @click="safeBoard">Safe Board</button>
+    <button @click="compare">Compare</button>
     <v-stage
       ref="stage"
       :config="configKonva"
@@ -38,6 +40,7 @@ import { KonvaEventListener, KonvaEventObject } from "konva/lib/Node";
 import { KonvaNodeEvent } from "konva/lib/types";
 import { Stage } from "konva/lib/Stage";
 import { Layer } from "konva/lib/Layer";
+import resemble from "resemblejs";
 
 export default defineComponent({
   name: "Canvas",
@@ -61,6 +64,8 @@ export default defineComponent({
       height: height,
     });
 
+    let userImage = '';
+
     const handleDragstart = (e: DragEvent) => {
       if (e.target != null && e.target instanceof HTMLElement) {
         // save drag element:
@@ -75,6 +80,30 @@ export default defineComponent({
     const handleDragend = () => {
       dragItemId.value = "";
     };
+
+    const safeBoard = () => {
+      const transformerNode = transformer.value.getNode();
+      const stage = transformerNode.getStage() as Stage;
+      stage.toDataURL({pixelRatio: 2,
+      callback(img) {
+        userImage = img;
+       }});
+    }
+
+    const compare = () => {
+      const transformerNode = transformer.value.getNode();
+      const stage = transformerNode.getStage() as Stage;
+      let compareImage= '';
+      stage.toDataURL({pixelRatio: 2,
+      callback(img) {
+        compareImage = img;
+       }});
+       var diff = resemble(userImage).compareTo(compareImage).ignoreColors()
+      .onComplete(function (data) {
+        console.log(data);
+    });
+    }
+
 
     const addRect = () => {
       list.value.push(
@@ -166,8 +195,11 @@ export default defineComponent({
       dragItemId,
       transformer,
       configKonva,
+      userImage,
       handleDragstart,
       handleDragend,
+      safeBoard,
+      compare,
       addRect,
       handleTransformEnd,
       handleStageMouseDown,
