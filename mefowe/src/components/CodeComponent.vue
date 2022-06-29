@@ -1,18 +1,19 @@
 <template>
   <div class="code">
-    <pre><code>{{output}}</code></pre>
+    <pre><code>{{template}}</code></pre>
     <editor-content :editor="editor" />
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent, onMounted, ref } from "vue";
 import { useEditor, EditorContent, generateHTML } from "@tiptap/vue-3/src";
 import Document from "@tiptap/extension-document";
 import Paragraph from "@tiptap/extension-paragraph";
 import Text from "@tiptap/extension-text";
 import Code from "@tiptap/extension-code";
 import Bold from "@tiptap/extension-bold";
+import { generateTemplate } from "@/openAi/openAi";
 
 export default defineComponent({
   name: "Code",
@@ -100,10 +101,19 @@ export default defineComponent({
       extensions: [Document, Paragraph, Text, Code],
     });
 
+    const template = ref<string>("");
+
+    onMounted(async () => {
+      template.value = await generateTemplate(
+        "write a html layout for a ice cream shop"
+      );
+    });
+
     return {
       editor,
       newnewedit,
       output,
+      template,
     };
   },
 });
