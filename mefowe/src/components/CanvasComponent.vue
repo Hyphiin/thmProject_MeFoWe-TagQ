@@ -1,6 +1,7 @@
 <template>
   <div class="canvas">
     <button @click="addRect">Add Rect</button>
+    <button @click="addText">Add Text</button>
     <button @click="safeBoard">Safe Board</button>
     <button @click="compare">Compare</button>
     <v-stage
@@ -13,7 +14,7 @@
     >
       <v-layer ref="layer">
         <v-rect
-          v-for="[idx, item] in Object.entries(list)"
+          v-for="[idx, item] in Object.entries(rectList)"
           :key="idx"
           :config="{
             id: item.id(),
@@ -26,25 +27,43 @@
           }"
           @transformend="handleTransformEnd"
         />
+        <v-text
+          v-for="[idx, item] in Object.entries(textList)"
+          :key="idx"
+          :config="{
+            id: item.id(),
+            x: item.x(),
+            y: item.y(),
+            fill: item.fill(),
+            width: item.width(),
+            height: item.height(),
+            text: item.text(),
+            fontSize: item.fontSize(),
+            draggable: true,
+          }"
+        />
         <v-transformer ref="transformer" />
       </v-layer>
     </v-stage>
   </div>
+  <DrawerComponent/>
 </template>
 
 <script lang="ts">
 import { defineComponent, ref } from "vue";
 import { Rect } from "konva/lib/shapes/Rect";
+import { Text } from "konva/lib/shapes/Text";
 import { Util } from "konva/lib/Util";
-import { KonvaEventListener, KonvaEventObject } from "konva/lib/Node";
+import { KonvaEventObject } from "konva/lib/Node";
 import { KonvaNodeEvent } from "konva/lib/types";
 import { Stage } from "konva/lib/Stage";
 import { Layer } from "konva/lib/Layer";
 import resemble from "resemblejs";
+import DrawerComponent from "@/components/DrawerComponent.vue"; // @ is an alias to /src
 
 export default defineComponent({
   name: "Canvas",
-  components: {},
+  components: {DrawerComponent},
   props: {
     msg: String,
   },
@@ -52,7 +71,8 @@ export default defineComponent({
     const width = window.innerWidth * 0.66;
     const height = window.innerHeight * 0.85;
 
-    const list = ref<Rect[]>([]);
+    const rectList = ref<Rect[]>([]);
+    const textList = ref<Text[]>([]);
     const dragItemId = ref<string>();
 
     const selectedShapeId = ref<string>();
@@ -71,10 +91,11 @@ export default defineComponent({
         // save drag element:
         dragItemId.value = e.target.id;
         // move current element to the top:
-        const item = list.value.find((i) => i.id() === dragItemId.value);
-        const index = list.value.indexOf(item as Rect);
-        list.value.splice(index, 1);
-        list.value.push(item as Rect);
+        console.log(e.target)
+        const item = rectList.value.find((i) => i.id() === dragItemId.value);
+        const index = rectList.value.indexOf(item as Rect);
+        rectList.value.splice(index, 1);
+        rectList.value.push(item as Rect);
       }
     };
     const handleDragend = () => {
@@ -106,7 +127,7 @@ export default defineComponent({
 
 
     const addRect = () => {
-      list.value.push(
+      rectList.value.push(
         new Rect({
           id: Math.round(Math.random() * 10000).toString(),
           x: Math.round(Math.random() * width),
@@ -118,11 +139,26 @@ export default defineComponent({
         })
       );
     };
+    const addText = () => {
+      textList.value.push(
+        new Text({
+          id: Math.round(Math.random() * 10000).toString(),
+          x: Math.round(Math.random() * width),
+          y: Math.round(Math.random() * height),
+          fill: Util.getRandomColor(),
+          width: 100,
+          height: 100,
+          text: 'Simple Text',
+          fontSize: 30,
+          draggable: true,
+        })
+      );
+    };
 
     const handleTransformEnd = (e: KonvaEventObject<KonvaNodeEvent>) => {
       // shape is transformed, let us save new attrs back to the node
       // find element in our state
-      const shape = list.value.find(
+      const shape = rectList.value.find(
         (r) => r.id() === selectedShapeId.value
       )!.attrs;
 
@@ -160,7 +196,7 @@ export default defineComponent({
 
       // find clicked shape by its name
       const id = e.target.id();
-      const shape = list.value.find((r) => r.id() === id);
+      const shape = rectList.value.find((r) => r.id() === id);
 
       if (shape && !(shape instanceof Layer)) {
         selectedShapeId.value = id;
@@ -191,7 +227,8 @@ export default defineComponent({
     };
 
     return {
-      list,
+      rectList,
+      textList,
       dragItemId,
       transformer,
       configKonva,
@@ -201,6 +238,7 @@ export default defineComponent({
       safeBoard,
       compare,
       addRect,
+      addText,
       handleTransformEnd,
       handleStageMouseDown,
       updateTransformer,
