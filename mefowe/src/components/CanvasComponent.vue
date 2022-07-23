@@ -5,7 +5,18 @@
     <button @click="compare">Compare</button>
     <v-stage ref="stage" :config="configKonva" @dragstart="handleDragstart" @dragend="handleDragend"
       @mousedown="handleStageMouseDown" @touchstart="handleStageMouseDown">
-      <v-layer ref="layer">
+      <v-layer ref="layer-grid">
+        <v-line v-for="[idx, item] in Object.entries(gridLines)" :key="idx" :config="{
+          id: item.id(),
+          x: item.x(),
+          y: item.y(),
+          points: item.points(),
+          stroke: item.stroke(),
+          strokeWidth: item.strokeWidth(),
+        }" />
+        <v-transformer ref="transformer" />
+      </v-layer>
+       <v-layer ref="layer">
         <v-rect v-for="[idx, item] in Object.entries(list)" :key="idx" :config="{
           id: item.id(),
           x: item.x(),
@@ -22,12 +33,12 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from "vue";
+import { defineComponent, onMounted, ref } from "vue";
 import { Rect } from "konva/lib/shapes/Rect";
 import { Util } from "konva/lib/Util";
 import { KonvaEventListener, KonvaEventObject } from "konva/lib/Node";
 import { KonvaNodeEvent } from "konva/lib/types";
-import { Stage } from "konva/lib/Stage";
+import { Stage, StageConfig } from "konva/lib/Stage";
 import { Layer } from "konva/lib/Layer";
 import { Line } from "konva/lib/shapes/Line"
 import resemble from "resemblejs";
@@ -43,6 +54,7 @@ export default defineComponent({
     const height = window.innerHeight * 0.85;
 
     const list = ref<Rect[]>([]);
+    const gridLines = ref<Line[]>([]);
     const dragItemId = ref<string>();
 
     const selectedShapeId = ref<string>();
@@ -53,6 +65,9 @@ export default defineComponent({
       width: width,
       height: height,
     });
+    onMounted(() => {
+      drawLinesSolution()
+    })
 
     let userImage = '';
 
@@ -101,7 +116,6 @@ export default defineComponent({
     const stepSize = 40;
     const drawLinesSolution = () => {
 
-      let fullRect = configKonva;
 
       const
         // find the x & y size of the grid
@@ -112,12 +126,12 @@ export default defineComponent({
         xSteps = Math.round(xSize / stepSize),
         ySteps = Math.round(ySize / stepSize);
 
-      var layer = new Layer()
 
       // draw vertical lines
       for (let i = 0; i <= xSteps; i++) {
-        layer.add(
+        gridLines.value.push(
           new Line({
+            id: Math.round(Math.random() * 10000).toString(),
             x: 0 + i * stepSize,
             y: ySize,
             points: [0, 0, 0, ySize],
@@ -128,8 +142,9 @@ export default defineComponent({
       }
       //draw Horizontal lines
       for (let i = 0; i <= ySteps; i++) {
-        layer.add(
+        gridLines.value.push(
           new Line({
+            id: Math.round(Math.random() * 10000).toString(),
             x: xSize,
             y: 0 + i * stepSize,
             points: [0, 0, xSize, 0],
@@ -138,13 +153,12 @@ export default defineComponent({
           })
         );
       }
-      const transformerNode = transformer.value.getNode()
-      const stage = transformerNode.getStage() as Stage
-      stage.add(layer);
+      console.log(gridLines)
     }
 
 
     const addRect = () => {
+      drawLinesSolution()
       list.value.push(
         new Rect({
           id: Math.round(Math.random() * 10000).toString(),
@@ -235,6 +249,7 @@ export default defineComponent({
       transformer,
       configKonva,
       userImage,
+      gridLines,
       handleDragstart,
       handleDragend,
       safeBoard,
