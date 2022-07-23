@@ -3,29 +3,18 @@
     <button @click="addRect">Add Rect</button>
     <button @click="safeBoard">Safe Board</button>
     <button @click="compare">Compare</button>
-    <v-stage
-      ref="stage"
-      :config="configKonva"
-      @dragstart="handleDragstart"
-      @dragend="handleDragend"
-      @mousedown="handleStageMouseDown"
-      @touchstart="handleStageMouseDown"
-    >
+    <v-stage ref="stage" :config="configKonva" @dragstart="handleDragstart" @dragend="handleDragend"
+      @mousedown="handleStageMouseDown" @touchstart="handleStageMouseDown">
       <v-layer ref="layer">
-        <v-rect
-          v-for="[idx, item] in Object.entries(list)"
-          :key="idx"
-          :config="{
-            id: item.id(),
-            x: item.x(),
-            y: item.y(),
-            fill: item.fill(),
-            width: item.width(),
-            height: item.height(),
-            draggable: true,
-          }"
-          @transformend="handleTransformEnd"
-        />
+        <v-rect v-for="[idx, item] in Object.entries(list)" :key="idx" :config="{
+          id: item.id(),
+          x: item.x(),
+          y: item.y(),
+          fill: item.fill(),
+          width: item.width(),
+          height: item.height(),
+          draggable: true,
+        }" @transformend="handleTransformEnd" />
         <v-transformer ref="transformer" />
       </v-layer>
     </v-stage>
@@ -40,6 +29,7 @@ import { KonvaEventListener, KonvaEventObject } from "konva/lib/Node";
 import { KonvaNodeEvent } from "konva/lib/types";
 import { Stage } from "konva/lib/Stage";
 import { Layer } from "konva/lib/Layer";
+import { Line } from "konva/lib/shapes/Line"
 import resemble from "resemblejs";
 
 export default defineComponent({
@@ -84,24 +74,73 @@ export default defineComponent({
     const safeBoard = () => {
       const transformerNode = transformer.value.getNode();
       const stage = transformerNode.getStage() as Stage;
-      stage.toDataURL({pixelRatio: 2,
-      callback(img) {
-        userImage = img;
-       }});
+      stage.toDataURL({
+        pixelRatio: 2,
+        callback(img) {
+          userImage = img;
+        }
+      });
     }
 
     const compare = () => {
       const transformerNode = transformer.value.getNode();
       const stage = transformerNode.getStage() as Stage;
-      let compareImage= '';
-      stage.toDataURL({pixelRatio: 2,
-      callback(img) {
-        compareImage = img;
-       }});
-       var diff = resemble(userImage).compareTo(compareImage).ignoreColors()
-      .onComplete(function (data) {
-        console.log(data);
-    });
+      let compareImage = '';
+      stage.toDataURL({
+        pixelRatio: 2,
+        callback(img) {
+          compareImage = img;
+        }
+      });
+      var diff = resemble(userImage).compareTo(compareImage).ignoreColors()
+        .onComplete(function (data) {
+          console.log(data);
+        });
+    }
+
+    const stepSize = 40;
+    const drawLinesSolution = () => {
+
+      let fullRect = configKonva;
+
+      const
+        // find the x & y size of the grid
+        xSize = window.innerWidth * 0.66,
+        ySize = window.innerHeight * 0.85,
+
+        // compute the number of steps required on each axis.
+        xSteps = Math.round(xSize / stepSize),
+        ySteps = Math.round(ySize / stepSize);
+
+      var layer = new Layer()
+
+      // draw vertical lines
+      for (let i = 0; i <= xSteps; i++) {
+        layer.add(
+          new Line({
+            x: 0 + i * stepSize,
+            y: ySize,
+            points: [0, 0, 0, ySize],
+            stroke: 'rgba(0, 0, 0, 0.2)',
+            strokeWidth: 1,
+          })
+        );
+      }
+      //draw Horizontal lines
+      for (let i = 0; i <= ySteps; i++) {
+        layer.add(
+          new Line({
+            x: xSize,
+            y: 0 + i * stepSize,
+            points: [0, 0, xSize, 0],
+            stroke: 'rgba(0, 0, 0, 0.2)',
+            strokeWidth: 1,
+          })
+        );
+      }
+      const transformerNode = transformer.value.getNode()
+      const stage = transformerNode.getStage() as Stage
+      stage.add(layer);
     }
 
 
@@ -204,6 +243,7 @@ export default defineComponent({
       handleTransformEnd,
       handleStageMouseDown,
       updateTransformer,
+      drawLinesSolution,
     };
   },
 });
@@ -216,17 +256,21 @@ export default defineComponent({
   margin: 20px;
   background-color: #21333c;
 }
+
 h3 {
   margin: 40px 0 0;
 }
+
 ul {
   list-style-type: none;
   padding: 0;
 }
+
 li {
   display: inline-block;
   margin: 0 10px;
 }
+
 a {
   color: #42b983;
 }
