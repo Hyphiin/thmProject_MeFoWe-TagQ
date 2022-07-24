@@ -16,7 +16,6 @@
           stroke: item.stroke(),
           strokeWidth: item.strokeWidth(),
         }" />
-        <v-transformer ref="transformer" />
       </v-layer>
       <v-layer ref="layer-guide">
         <v-line v-for="[idx, item] in Object.entries(guideLines)" :key="idx" :config="{
@@ -27,7 +26,6 @@
           stroke: item.stroke(),
           strokeWidth: item.strokeWidth(),
         }" />
-        <v-transformer ref="transformer" />
       </v-layer>
       <v-layer ref="layer">
         <v-rect v-for="[idx, item] in Object.entries(list)" :key="idx" :config="{
@@ -137,16 +135,18 @@ export default defineComponent({
         dragItemId.value = e.target.id;
         // move current element to the top:
         console.log(e.target)
-        const item = rectList.value.find((i) => i.id() === dragItemId.value);
-        const index = rectList.value.indexOf(item as Rect);
-        rectList.value.splice(index, 1);
-        rectList.value.push(item as Rect);
         guideLines.value.splice(0, guideLines.value.length);
+        const item = list.value.find((i) => i.id() === dragItemId.value);
+        const index = list.value.indexOf(item as Rect);
+        list.value.splice(index, 1);
+        list.value.push(item as Rect);
+        
       }
     };
 
     const handleDragmove = (e: any) => {
       // clear all previous lines on the screen
+  
 
       // find possible snapping lines
       var lineGuideStops = getLineGuideStops(e.target);
