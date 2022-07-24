@@ -14,7 +14,7 @@
           stroke: item.stroke(),
           strokeWidth: item.strokeWidth(),
         }" />
-        <v-transformer ref="transformer" />
+         <v-transformer ref="transformer" />
       </v-layer>
        <v-layer ref="layer">
         <v-rect v-for="[idx, item] in Object.entries(list)" :key="idx" :config="{
@@ -113,10 +113,8 @@ export default defineComponent({
         });
     }
 
-    const stepSize = 40;
+    const stepSize = 50;
     const drawLinesSolution = () => {
-
-
       const
         // find the x & y size of the grid
         xSize = window.innerWidth * 0.66,
@@ -133,7 +131,7 @@ export default defineComponent({
           new Line({
             id: Math.round(Math.random() * 10000).toString(),
             x: 0 + i * stepSize,
-            y: ySize,
+            y: 0,
             points: [0, 0, 0, ySize],
             stroke: 'rgba(0, 0, 0, 0.2)',
             strokeWidth: 1,
@@ -145,7 +143,7 @@ export default defineComponent({
         gridLines.value.push(
           new Line({
             id: Math.round(Math.random() * 10000).toString(),
-            x: xSize,
+            x: 0,
             y: 0 + i * stepSize,
             points: [0, 0, xSize, 0],
             stroke: 'rgba(0, 0, 0, 0.2)',
