@@ -9,8 +9,8 @@ export const generateTemplate = async (wish: string) => {
     const response = await openai.createCompletion({
       model: "text-davinci-002",
       prompt: wish,
-      max_tokens: 3000,
-      temperature: 0,
+      max_tokens: 4000,
+      // temperature: 0,
     });
 
     if (

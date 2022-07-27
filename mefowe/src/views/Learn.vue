@@ -9,18 +9,16 @@ import { defineComponent } from "vue";
 
 export default defineComponent({
   name: "Learn",
-  components: {
+  components: {},
+  setup() {
+    return {};
   },
-  setup(){
-    return{}
-  }
 });
 </script>
 
-
 <style scoped>
-.learn{
-  color:white;
-  height: 743px;
+.learn {
+  color: white;
+  height: 100vh;
 }
 </style>
