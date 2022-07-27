@@ -1,19 +1,22 @@
 <template>
   <div class="code">
-    <pre><code>{{template}}</code></pre>
+    <div>
+      <pre><code>{{body}}</code></pre>
+    </div>
+    <div>
+      <pre><code>{{stylePart}}</code></pre>
+    </div>
     <!-- <editor-content :editor="editor" /> -->
+    <iframe id="theFrame" src="about:blank" />
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, ref } from "vue";
-import { useEditor, EditorContent, generateHTML } from "@tiptap/vue-3/src";
-import Document from "@tiptap/extension-document";
-import Paragraph from "@tiptap/extension-paragraph";
-import Text from "@tiptap/extension-text";
-import Code from "@tiptap/extension-code";
-import Bold from "@tiptap/extension-bold";
+import { defineComponent, onMounted, ref, watch } from "vue";
 import { generateTemplate } from "@/openAi/openAi";
+import html2canvas from "html2canvas";
+import store from "@/store";
+import cssbeautify from "cssbeautify";
 
 export default defineComponent({
   name: "Code",
@@ -21,99 +24,207 @@ export default defineComponent({
     // EditorContent,
   },
   props: {
-    msg: String,
+    chosenLayout: {
+      type: String,
+      required: true,
+    },
   },
-  setup() {
-    const json = {
-      type: "doc",
-      content: [
-        {
-          type: "paragraph",
-          content: [
-            {
-              type: "text",
-              text: "Example ",
-            },
-            {
-              type: "text",
-              marks: [
-                {
-                  type: "bold",
-                },
-              ],
-              text: "Text",
-            },
-          ],
-        },
-      ],
-    };
-
-    const output = generateHTML(json, [
-      Document,
-      Paragraph,
-      Text,
-      Bold,
-      // other extensions …
-    ]);
-
-    const edit = `
-    <h2>
-      Hi there,
-    </h2>
-    <p>
-      this is a basic <em>basic</em> example of <strong>tiptap</strong>. Sure, there are all kind of basic text styles you’d probably expect from a text editor. But wait until you see the lists:
-    </p>
-    <ul>
-      <li>
-        That’s a bullet list with one …
-      </li>
-      <li>
-        … or two list items.
-      </li>
-    </ul>
-    <p>
-      Isn’t that great? And all of that is editable. But wait, there’s more. Let’s try a code block:
-    </p>
-    <p>
-      I know, I know, this is impressive. It’s only the tip of the iceberg though. Give it a try and click a little bit around. Don’t forget to check the other examples too.
-    </p>
-    <blockquote>
-      Wow, that’s amazing. Good work, boy! 👏
-      <br />
-      — Mom
-    </blockquote>
-  `;
-
-    var newedit = edit.replace(/</g, "&lt;");
-    var newnewedit = newedit.replace(/>/g, "&gt;");
-
-    var content = `<pre><code>${newnewedit}</code></pre>
-     <pre><code class="language-css">
-     body {
-  display: none;
-  }
-  </code></pre>`;
-
-    let abc = "&ltp&gt; Hello &ltp/&gt;";
-
-    const editor = useEditor({
-      content: content,
-      extensions: [Document, Paragraph, Text, Code],
-    });
-
+  emits: {
+    createdImage(image: string): boolean {
+      return typeof image === "string";
+    },
+  },
+  setup(props, context) {
     const template = ref<string>("Awaiting Template... BiBaBub");
 
     onMounted(async () => {
-      template.value = await generateTemplate(
-        "write a html layout for a ice cream shop with plain css"
-      );
+      template.value = await generateTemplate(props.chosenLayout);
     });
 
+    const body = ref<string>("");
+    const stylePart = ref<string>("");
+
+    watch(
+      () => template.value,
+      (newValue) => {
+        if (template.value.length > 0) {
+          let frame = document.getElementById("theFrame");
+          let doc = document.implementation.createHTMLDocument("New Document");
+
+          const strippedString = newValue.replace(/[\r\n]/gm, "");
+
+          const abc = /<body>(.*?)<\/body>/gm;
+
+          let found = abc.exec(strippedString);
+          if (found) {
+            doc.body.insertAdjacentHTML("beforeend", found[1]);
+            body.value = process(found[1]);
+            const withoutLineBreaks = newValue.replace(/[\r\n]/gm, "");
+
+            let cssRegexp = /[^<>]+/gm;
+            cssRegexp = /<style>(.*?)<\/style>/gm;
+
+            let matchStyle = withoutLineBreaks.match(cssRegexp);
+
+            if (matchStyle) {
+              let matching = cssRegexp.exec(matchStyle[0]);
+
+              if (matching) {
+                let head = doc.head || doc.getElementsByTagName("head")[0];
+                let style = doc.createElement("style");
+
+                head.appendChild(style);
+
+                style.type = "text/css";
+
+                style.appendChild(doc.createTextNode(matching[1]));
+                stylePart.value = cssbeautify(matching[1]);
+
+                if (frame && frame instanceof HTMLIFrameElement) {
+                  // Copy the new HTML document into the frame
+
+                  let destDocument = frame.contentDocument;
+                  let srcNode = doc.documentElement;
+
+                  if (destDocument) {
+                    let newNode = destDocument.importNode(srcNode, true);
+
+                    destDocument.replaceChild(
+                      newNode,
+                      destDocument.documentElement
+                    );
+                    const screenshotTarget = destDocument.body;
+
+                    html2canvas(screenshotTarget).then((canvas) => {
+                      const base64image = canvas.toDataURL("image/png");
+
+                      // var image = new Image();
+                      // image.src = base64image;
+                      // document.body.appendChild(image);
+
+                      context.emit("createdImage", base64image);
+                    });
+                  }
+                }
+              }
+            } else {
+              cssRegexp = /<style\s.*?>(.*?)<\/style>/gm;
+
+              let matchStyle = withoutLineBreaks.match(cssRegexp);
+
+              if (matchStyle) {
+                let matching = cssRegexp.exec(matchStyle[0]);
+
+                if (matching) {
+                  let head = doc.head || doc.getElementsByTagName("head")[0];
+                  let style = doc.createElement("style");
+
+                  head.appendChild(style);
+
+                  style.type = "text/css";
+
+                  style.appendChild(doc.createTextNode(matching[1]));
+                  stylePart.value = cssbeautify(matching[1]);
+
+                  if (frame && frame instanceof HTMLIFrameElement) {
+                    // Copy the new HTML document into the frame
+
+                    let destDocument = frame.contentDocument;
+                    let srcNode = doc.documentElement;
+
+                    if (destDocument) {
+                      let newNode = destDocument.importNode(srcNode, true);
+
+                      destDocument.replaceChild(
+                        newNode,
+                        destDocument.documentElement
+                      );
+                      const screenshotTarget = destDocument.body;
+
+                      html2canvas(screenshotTarget).then((canvas) => {
+                        const base64image = canvas.toDataURL("image/png");
+
+                        // var image = new Image();
+                        // image.src = base64image;
+                        // document.body.appendChild(image);
+
+                        context.emit("createdImage", base64image);
+                      });
+                    }
+                  }
+                }
+              } else {
+                if (frame && frame instanceof HTMLIFrameElement) {
+                  // Copy the new HTML document into the frame
+
+                  let destDocument = frame.contentDocument;
+                  let srcNode = doc.documentElement;
+
+                  if (destDocument) {
+                    let newNode = destDocument.importNode(srcNode, true);
+
+                    destDocument.replaceChild(
+                      newNode,
+                      destDocument.documentElement
+                    );
+                    const screenshotTarget = destDocument.body;
+
+                    html2canvas(screenshotTarget).then((canvas) => {
+                      const base64image = canvas.toDataURL("image/png");
+
+                      // var image = new Image();
+                      // image.src = base64image;
+                      // document.body.appendChild(image);
+
+                      context.emit("createdImage", base64image);
+                    });
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    );
+
+    watch(
+      () => store.state.chosenOption,
+      async (newValue) => {
+        template.value = await generateTemplate(newValue);
+      }
+    );
+
+    function process(str: string) {
+      var div = document.createElement("div");
+      div.innerHTML = str.trim();
+
+      return format(div, 0).innerHTML;
+    }
+
+    function format(node: Element, level: number) {
+      var indentBefore = new Array(level++ + 1).join("  "),
+        indentAfter = new Array(level - 1).join("  "),
+        textNode;
+
+      for (var i = 0; i < node.children.length; i++) {
+        textNode = document.createTextNode("\n" + indentBefore);
+        node.insertBefore(textNode, node.children[i]);
+
+        format(node.children[i], level);
+
+        if (node.lastElementChild == node.children[i]) {
+          textNode = document.createTextNode("\n" + indentAfter);
+          node.appendChild(textNode);
+        }
+      }
+
+      return node;
+    }
+
     return {
-      editor,
-      newnewedit,
-      output,
       template,
+      body,
+      stylePart,
     };
   },
 });
@@ -140,5 +251,14 @@ li {
 }
 a {
   color: #42b983;
+}
+
+#theFrame {
+  /* display: none; */
+
+  opacity: 0;
+  width: 66vw;
+  height: 85vh;
+  z-index: -10;
 }
 </style>

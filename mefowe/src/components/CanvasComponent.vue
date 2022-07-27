@@ -1,12 +1,20 @@
 <template>
-  <div class="canvas">
+  <div class="canvas__component">
     <button @click="addRect">Add Rect</button>
     <button @click="addText">Add Text</button>
     <button @click="addButton">Add Button</button>
-    <button @click="safeBoard">Safe Board</button>
-    <button @click="compare">Compare</button>
-    <v-stage ref="stage" :config="configKonva" @dragstart="handleDragstart" @dragend="handleDragend"
-      @dragmove="handleDragmove" @mousedown="handleStageMouseDown" @touchstart="handleStageMouseDown">
+    <button v-if="userImage" @click="compare">Compare</button>
+    <button v-if="compared" @click="nextQuestion">Nächstes Level</button>
+    <!-- <button @click="safeBoard">Safe Board</button> -->
+    <v-stage
+      ref="stage"
+      :config="configKonva"
+      @dragstart="handleDragstart"
+      @dragend="handleDragend"
+      @dragmove="handleDragmove"
+      @mousedown="handleStageMouseDown"
+      @touchstart="handleStageMouseDown"
+    >
       <v-layer ref="layer">
         <v-transformer ref="transformer" />
       </v-layer>
@@ -21,30 +29,38 @@
             <span class="title">Hello</span>
           </a>
         </li>
-        <li><a href="#">
+        <li>
+          <a href="#">
             <span class="icon">
               <font-awesome-icon icon="fa-solid fa-circle-dot" />
             </span>
             <span class="title">Hello</span>
-          </a></li>
-        <li><a href="#">
+          </a>
+        </li>
+        <li>
+          <a href="#">
             <span class="icon">
               <font-awesome-icon icon="fa-solid fa-circle-dot" />
             </span>
             <span class="title">Hello</span>
-          </a></li>
-        <li><a href="#">
+          </a>
+        </li>
+        <li>
+          <a href="#">
             <span class="icon">
               <font-awesome-icon icon="fa-solid fa-circle-dot" />
             </span>
             <span class="title">Hello</span>
-          </a></li>
-        <li><a href="#">
+          </a>
+        </li>
+        <li>
+          <a href="#">
             <span class="icon">
               <font-awesome-icon icon="fa-solid fa-circle-dot" />
             </span>
             <span class="title">Hello</span>
-          </a></li>
+          </a>
+        </li>
       </ul>
     </div>
     <div class="toggle"></div>
@@ -52,7 +68,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, ref } from "vue";
+import { defineComponent, onMounted, ref, watch } from "vue";
 import { Rect } from "konva/lib/shapes/Rect";
 import { Text } from "konva/lib/shapes/Text";
 import { Group } from "konva/lib/Group";
@@ -69,9 +85,16 @@ export default defineComponent({
   name: "Canvas",
   components: {},
   props: {
-    msg: String,
+    createdImage: {
+      type: String,
+    },
   },
-  setup() {
+  emits: {
+    nextQuestion(): boolean {
+      return true;
+    },
+  },
+  setup(props, context) {
     const width = window.innerWidth * 0.66;
     const height = window.innerHeight * 0.85;
 
@@ -86,18 +109,26 @@ export default defineComponent({
       height: height,
     });
     onMounted(() => {
-      drawLinesSolution()
-    })
+      drawLinesSolution();
+    });
 
+    const userImage = ref<string | undefined>(props.createdImage);
 
-    let userImage = '';
+    watch(
+      () => props.createdImage,
+      (newValue) => {
+        if (newValue) {
+          userImage.value = newValue;
+        }
+      }
+    );
 
     const handleDragstart = (e: DragEvent) => {
       if (e.target != null && e.target instanceof HTMLElement) {
         // save drag element:
         dragItemId.value = e.target.id;
         // move current element to the top:
-        console.log(e.target)
+        console.log(e.target);
         const item = rectList.value.find((i) => i.id() === dragItemId.value);
         const index = rectList.value.indexOf(item as Rect);
         rectList.value.splice(index, 1);
@@ -105,36 +136,60 @@ export default defineComponent({
       }
     };
     const handleDragend = () => {
-      guideLines.find('.guid-line').forEach((l) => l.destroy());
+      guideLines.find(".guid-line").forEach((l) => l.destroy());
       dragItemId.value = "";
     };
 
     const safeBoard = () => {
       const transformerNode = transformer.value.getNode();
       const stage = transformerNode.getStage() as Stage;
-      stage.toDataURL({
-        pixelRatio: 2,
-        callback(img) {
-          userImage = img;
-        }
-      });
-    }
+      // stage.toDataURL({
+      //   pixelRatio: 2,
+      //   callback(img) {
+      //     userImage = img;
+      //   },
+      // });
+    };
+
+    const compared = ref<boolean>(false);
 
     const compare = () => {
-      const transformerNode = transformer.value.getNode();
-      const stage = transformerNode.getStage() as Stage;
-      let compareImage = '';
-      stage.toDataURL({
-        pixelRatio: 2,
-        callback(img) {
-          compareImage = img;
-        }
-      });
-      var diff = resemble(userImage).compareTo(compareImage).ignoreColors()
-        .onComplete(function (data) {
-          console.log(data);
+      if (userImage.value) {
+        const transformerNode = transformer.value.getNode();
+        const stage = transformerNode.getStage() as Stage;
+        let compareImage = "";
+        stage.toDataURL({
+          pixelRatio: 2,
+          callback(img) {
+            compareImage = img;
+          },
         });
-    }
+
+        resemble(userImage.value)
+          .compareTo(compareImage)
+          .ignoreColors()
+          .onComplete(function (data) {
+            console.log(data);
+            compared.value = true;
+          });
+      }
+    };
+
+    const nextQuestion = () => {
+      compared.value = false;
+
+      context.emit("nextQuestion");
+
+      setTimeout(() => {
+        // const transformerNode = transformer.value.getNode();
+        // const stage = transformerNode.getStage() as Stage;
+
+        // stage.clear();
+        rectLayer.clear();
+        textLayer.clear();
+        buttonLayer.clear();
+      }, 2000);
+    };
 
     var rectLayer = new Layer();
     const addRect = () => {
@@ -150,24 +205,20 @@ export default defineComponent({
         width: 100,
         height: 100,
         draggable: true,
-      })
+      });
       rectList.value.push(newRect);
       rectLayer.add(newRect);
       stage.add(rectLayer);
     };
 
-
     const stepSize = 50;
     var gridLayer = new Layer();
     function drawLinesSolution() {
-
       // set clip function to stop leaking lines into non-viewable space.
 
-      const
-        // find the x & y size of the grid
+      const // find the x & y size of the grid
         xSize = width,
         ySize = height,
-
         // compute the number of steps required on each axis.
         xSteps = Math.round(xSize / stepSize),
         ySteps = Math.round(ySize / stepSize);
@@ -179,7 +230,7 @@ export default defineComponent({
             x: 0 + i * stepSize,
             y: 0,
             points: [0, 0, 0, ySize],
-            stroke: 'black',
+            stroke: "black",
             strokeWidth: 1,
           })
         );
@@ -191,7 +242,7 @@ export default defineComponent({
             x: 0,
             y: 0 + i * stepSize,
             points: [0, 0, xSize, 0],
-            stroke: 'black',
+            stroke: "black",
             strokeWidth: 1,
           })
         );
@@ -206,7 +257,6 @@ export default defineComponent({
       // we can snap to stage borders and the center of the stage
       var vertical: any = [0, width / 2, width];
       var horizontal: any = [0, height / 2, height];
-
 
       // and we snap over edges and center of each object on the canvas
       rectList.value.forEach((guideItem) => {
@@ -233,34 +283,34 @@ export default defineComponent({
           {
             guide: Math.round(box.x),
             offset: Math.round(absPos.x - box.x),
-            snap: 'start',
+            snap: "start",
           },
           {
             guide: Math.round(box.x + box.width / 2),
             offset: Math.round(absPos.x - box.x - box.width / 2),
-            snap: 'center',
+            snap: "center",
           },
           {
             guide: Math.round(box.x + box.width),
             offset: Math.round(absPos.x - box.x - box.width),
-            snap: 'end',
+            snap: "end",
           },
         ],
         horizontal: [
           {
             guide: Math.round(box.y),
             offset: Math.round(absPos.y - box.y),
-            snap: 'start',
+            snap: "start",
           },
           {
             guide: Math.round(box.y + box.height / 2),
             offset: Math.round(absPos.y - box.y - box.height / 2),
-            snap: 'center',
+            snap: "center",
           },
           {
             guide: Math.round(box.y + box.height),
             offset: Math.round(absPos.y - box.y - box.height),
-            snap: 'end',
+            snap: "end",
           },
         ],
       };
@@ -272,32 +322,36 @@ export default defineComponent({
       var resultH: any[] = [];
 
       lineGuideStops.vertical.forEach((lineGuide: number) => {
-        itemBounds.vertical.forEach((itemBound: { guide: number; snap: any; offset: any; }) => {
-          var diff = Math.abs(lineGuide - itemBound.guide);
-          // if the distance between guild line and object snap point is close we can consider this for snapping
-          if (diff < GUIDELINE_OFFSET) {
-            resultV.push({
-              lineGuide: lineGuide,
-              diff: diff,
-              snap: itemBound.snap,
-              offset: itemBound.offset,
-            });
+        itemBounds.vertical.forEach(
+          (itemBound: { guide: number; snap: any; offset: any }) => {
+            var diff = Math.abs(lineGuide - itemBound.guide);
+            // if the distance between guild line and object snap point is close we can consider this for snapping
+            if (diff < GUIDELINE_OFFSET) {
+              resultV.push({
+                lineGuide: lineGuide,
+                diff: diff,
+                snap: itemBound.snap,
+                offset: itemBound.offset,
+              });
+            }
           }
-        });
+        );
       });
 
       lineGuideStops.horizontal.forEach((lineGuide: number) => {
-        itemBounds.horizontal.forEach((itemBound: { guide: number; snap: any; offset: any; }) => {
-          var diff = Math.abs(lineGuide - itemBound.guide);
-          if (diff < GUIDELINE_OFFSET) {
-            resultH.push({
-              lineGuide: lineGuide,
-              diff: diff,
-              snap: itemBound.snap,
-              offset: itemBound.offset,
-            });
+        itemBounds.horizontal.forEach(
+          (itemBound: { guide: number; snap: any; offset: any }) => {
+            var diff = Math.abs(lineGuide - itemBound.guide);
+            if (diff < GUIDELINE_OFFSET) {
+              resultH.push({
+                lineGuide: lineGuide,
+                diff: diff,
+                snap: itemBound.snap,
+                offset: itemBound.offset,
+              });
+            }
           }
-        });
+        );
       });
 
       var guides = [];
@@ -309,7 +363,7 @@ export default defineComponent({
         guides.push({
           lineGuide: minV.lineGuide,
           offset: minV.offset,
-          orientation: 'V',
+          orientation: "V",
           snap: minV.snap,
         });
       }
@@ -317,7 +371,7 @@ export default defineComponent({
         guides.push({
           lineGuide: minH.lineGuide,
           offset: minH.offset,
-          orientation: 'H',
+          orientation: "H",
           snap: minH.snap,
         });
       }
@@ -326,13 +380,13 @@ export default defineComponent({
 
     var guideLines = new Layer();
     function drawGuides(guides: any) {
-      guides.forEach((lg: { orientation: string; lineGuide: any; }) => {
-        if (lg.orientation === 'H') {
+      guides.forEach((lg: { orientation: string; lineGuide: any }) => {
+        if (lg.orientation === "H") {
           var line = new Line({
             points: [-6000, 0, 6000, 0],
-            stroke: 'rgb(0, 161, 255)',
+            stroke: "rgb(0, 161, 255)",
             strokeWidth: 1,
-            name: 'guid-line',
+            name: "guid-line",
             dash: [4, 6],
           });
           guideLines.add(line);
@@ -340,12 +394,12 @@ export default defineComponent({
             x: 0,
             y: lg.lineGuide,
           });
-        } else if (lg.orientation === 'V') {
+        } else if (lg.orientation === "V") {
           var line2 = new Line({
             points: [0, -6000, 0, 6000],
-            stroke: 'rgb(0, 161, 255)',
+            stroke: "rgb(0, 161, 255)",
             strokeWidth: 1,
-            name: 'guid-line',
+            name: "guid-line",
             dash: [4, 6],
           });
           guideLines.add(line2);
@@ -360,7 +414,6 @@ export default defineComponent({
       stage.add(guideLines);
     }
 
-
     var textLayer = new Layer();
     const addText = () => {
       const transformerNode = transformer.value.getNode();
@@ -373,10 +426,10 @@ export default defineComponent({
         fill: Util.getRandomColor(),
         width: 150,
         height: 100,
-        text: 'Text',
+        text: "Text",
         fontSize: 30,
         draggable: true,
-      })
+      });
 
       textList.value.push(newText);
       textLayer.add(newText);
@@ -397,21 +450,25 @@ export default defineComponent({
         draggable: true,
       });
 
-      button.add(new Rect({
-        width: 130,
-        height: 25,
-        fill: 'lightblue'
-      }));
+      button.add(
+        new Rect({
+          width: 130,
+          height: 25,
+          fill: "lightblue",
+        })
+      );
 
-      button.add(new Text({
-        text: 'Button',
-        fontSize: 18,
-        fontFamily: 'Calibri',
-        fill: '#000',
-        width: 130,
-        padding: 5,
-        align: 'center'
-      }));
+      button.add(
+        new Text({
+          text: "Button",
+          fontSize: 18,
+          fontFamily: "Calibri",
+          fill: "#000",
+          width: 130,
+          padding: 5,
+          align: "center",
+        })
+      );
 
       buttonList.value.push(button);
       buttonLayer.add(button);
@@ -450,7 +507,6 @@ export default defineComponent({
           // // change fill
           // shape.fill = Util.getRandomColor();
         } else {
-
           const shape = textList.value.find(
             (r) => r.id() === selectedShapeId.value
           )!.attrs;
@@ -471,7 +527,7 @@ export default defineComponent({
 
     const handleDragmove = (e: KonvaEventObject<KonvaNodeEvent>) => {
       // clear all previous lines on the screen
-      guideLines.find('.guid-line').forEach((l) => l.destroy());
+      guideLines.find(".guid-line").forEach((l) => l.destroy());
 
       // find possible snapping lines
       var lineGuideStops = getLineGuideStops(e.target);
@@ -492,39 +548,39 @@ export default defineComponent({
       // now force object position
       guides.forEach((lg) => {
         switch (lg.snap) {
-          case 'start': {
+          case "start": {
             switch (lg.orientation) {
-              case 'V': {
+              case "V": {
                 absPos.x = lg.lineGuide + lg.offset;
                 break;
               }
-              case 'H': {
+              case "H": {
                 absPos.y = lg.lineGuide + lg.offset;
                 break;
               }
             }
             break;
           }
-          case 'center': {
+          case "center": {
             switch (lg.orientation) {
-              case 'V': {
+              case "V": {
                 absPos.x = lg.lineGuide + lg.offset;
                 break;
               }
-              case 'H': {
+              case "H": {
                 absPos.y = lg.lineGuide + lg.offset;
                 break;
               }
             }
             break;
           }
-          case 'end': {
+          case "end": {
             switch (lg.orientation) {
-              case 'V': {
+              case "V": {
                 absPos.x = lg.lineGuide + lg.offset;
                 break;
               }
-              case 'H': {
+              case "H": {
                 absPos.y = lg.lineGuide + lg.offset;
                 break;
               }
@@ -573,7 +629,6 @@ export default defineComponent({
             selectedShapeId.value = "";
           }
         }
-
       }
       updateTransformer();
     };
@@ -609,7 +664,9 @@ export default defineComponent({
       handleDragstart,
       handleDragend,
       safeBoard,
+      compared,
       compare,
+      nextQuestion,
       addRect,
       addText,
       addButton,
@@ -674,7 +731,7 @@ a {
 }
 
 .navigation ul li:hover {
-  background-color: #4A5C66;
+  background-color: #4a5c66;
 }
 
 .navigation ul li a {
@@ -714,14 +771,14 @@ a {
   right: -20px;
   width: 40px;
   height: 40px;
-  background-color: #4A5C66;
+  background-color: #4a5c66;
   cursor: pointer;
   border: 5px solid;
   border-radius: 50%;
 }
 
 .toggle::before {
-  content: 'x';
+  content: "x";
   position: absolute;
   width: 100%;
   height: 100%;
