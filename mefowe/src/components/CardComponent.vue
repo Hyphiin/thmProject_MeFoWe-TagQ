@@ -97,6 +97,7 @@ export default defineComponent({
   position: relative;
   display: flex;
   justify-content: space-between;
+  margin-bottom: 350px;
 }
 
 .container .card {

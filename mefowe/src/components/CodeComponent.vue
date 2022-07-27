@@ -187,12 +187,12 @@ export default defineComponent({
       }
     );
 
-    watch(
-      () => store.state.chosenOption,
-      async (newValue) => {
-        template.value = await generateTemplate(newValue);
-      }
-    );
+    // watch(
+    //   () => store.state.chosenOption,
+    //   async (newValue) => {
+    //     template.value = await generateTemplate(newValue);
+    //   }
+    // );
 
     function process(str: string) {
       var div = document.createElement("div");
