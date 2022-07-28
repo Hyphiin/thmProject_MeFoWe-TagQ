@@ -23,6 +23,7 @@ export default createStore({
   },
   mutations: {
     chooseLevel(state: any, level: string) {
+      console.log(level);
       state.chosenOption = level;
     },
   },

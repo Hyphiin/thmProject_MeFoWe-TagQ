@@ -6,7 +6,6 @@
     <div>
       <pre><code>{{stylePart}}</code></pre>
     </div>
-    <!-- <editor-content :editor="editor" /> -->
     <iframe id="theFrame" src="about:blank" />
   </div>
 </template>
@@ -20,9 +19,6 @@ import cssbeautify from "cssbeautify";
 
 export default defineComponent({
   name: "Code",
-  components: {
-    // EditorContent,
-  },
   props: {
     chosenLayout: {
       type: String,
@@ -97,11 +93,6 @@ export default defineComponent({
 
                     html2canvas(screenshotTarget).then((canvas) => {
                       const base64image = canvas.toDataURL("image/png");
-
-                      // var image = new Image();
-                      // image.src = base64image;
-                      // document.body.appendChild(image);
-
                       context.emit("createdImage", base64image);
                     });
                   }
@@ -143,11 +134,6 @@ export default defineComponent({
 
                       html2canvas(screenshotTarget).then((canvas) => {
                         const base64image = canvas.toDataURL("image/png");
-
-                        // var image = new Image();
-                        // image.src = base64image;
-                        // document.body.appendChild(image);
-
                         context.emit("createdImage", base64image);
                       });
                     }
@@ -171,11 +157,6 @@ export default defineComponent({
 
                     html2canvas(screenshotTarget).then((canvas) => {
                       const base64image = canvas.toDataURL("image/png");
-
-                      // var image = new Image();
-                      // image.src = base64image;
-                      // document.body.appendChild(image);
-
                       context.emit("createdImage", base64image);
                     });
                   }
@@ -257,8 +238,8 @@ a {
   /* display: none; */
 
   opacity: 0;
-  width: 66vw;
-  height: 85vh;
+  width: 1800px;
+  height: 1000px;
   z-index: -10;
 }
 </style>
