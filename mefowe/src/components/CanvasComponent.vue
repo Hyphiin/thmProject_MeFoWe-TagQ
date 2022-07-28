@@ -29,6 +29,7 @@
 import { defineComponent, onMounted, ref, watch } from "vue";
 import { Rect } from "konva/lib/shapes/Rect";
 import { Text } from "konva/lib/shapes/Text";
+import { Transformer } from "konva/lib/shapes/Transformer";
 import { Group } from "konva/lib/Group";
 import { Util } from "konva/lib/Util";
 import { KonvaEventObject } from "konva/lib/Node";
@@ -59,7 +60,7 @@ export default defineComponent({
     const rectList = ref<Rect[]>([]);
     const textList = ref<Text[]>([]);
     const buttonList = ref<Group[]>([]);
-    const dragItemId = ref<string>();
+    const dragItemId = ref<string>("");
     const selectedShapeId = ref<string>();
     const transformer = ref<any>();
     const configKonva = ref({
@@ -82,15 +83,34 @@ export default defineComponent({
     );
 
     const handleDragstart = (e: DragEvent) => {
-      if (e.target != null && e.target instanceof HTMLElement) {
+      console.log("handleDragstart", e.target)
+      if (e.target != null && e.target instanceof Rect) {
         // save drag element:
-        dragItemId.value = e.target.id;
+        dragItemId.value = e.target.attrs.id
         // move current element to the top:
-        console.log(e.target);
+        console.log("handleDragstart2",e.target);
         const item = rectList.value.find((i) => i.id() === dragItemId.value);
         const index = rectList.value.indexOf(item as Rect);
         rectList.value.splice(index, 1);
         rectList.value.push(item as Rect);
+      } else if (e.target != null && e.target instanceof Text) {
+        // save drag element:
+        dragItemId.value = e.target.attrs.id
+        // move current element to the top:
+        console.log("handleDragstart2", e.target);
+        const item = textList.value.find((i) => i.id() === dragItemId.value);
+        const index = textList.value.indexOf(item as Text);
+        textList.value.splice(index, 1);
+        textList.value.push(item as Text);
+      } else if (e.target != null && e.target instanceof Group) {
+        // save drag element:
+        dragItemId.value = e.target.attrs.id
+        // move current element to the top:
+        console.log("handleDragstart2", e.target);
+        const item = buttonList.value.find((i) => i.id() === dragItemId.value);
+        const index = buttonList.value.indexOf(item as Group);
+        buttonList.value.splice(index, 1);
+        buttonList.value.push(item as Group);
       }
     };
     const handleDragend = () => {
@@ -143,13 +163,12 @@ export default defineComponent({
         // const stage = transformerNode.getStage() as Stage;
 
         // stage.clear();
-        rectLayer.clear();
-        textLayer.clear();
-        buttonLayer.clear();
+        stageLayer.clear();
       }, 2000);
     };
 
-    var rectLayer = new Layer();
+    //Components
+    var stageLayer = new Layer();
     const addRect = () => {
       const transformerNode = transformer.value.getNode();
       const stage = transformerNode.getStage() as Stage;
@@ -165,10 +184,168 @@ export default defineComponent({
         draggable: true,
       });
       rectList.value.push(newRect);
-      rectLayer.add(newRect);
-      stage.add(rectLayer);
+      stageLayer.add(newRect);
+      stage.add(stageLayer);
     };
 
+    const addText = () => {
+      const transformerNode = transformer.value.getNode();
+      const stage = transformerNode.getStage() as Stage;
+
+      var newText = new Text({
+        id: Math.round(Math.random() * 10000).toString(),
+        x: Math.round(Math.random() * width),
+        y: Math.round(Math.random() * height),
+        fill: Util.getRandomColor(),
+        width: 280,
+        height: 100,
+        text: "Double Click to edit",
+        fontSize: 30,
+        draggable: true,
+      });
+
+      textList.value.push(newText);
+      stageLayer.add(newText);     
+
+      newText.on('dblclick dbltap', () => {
+        // hide text node and transformer:
+        newText.hide();
+
+        // create textarea over canvas with absolute position
+        // first we need to find position for textarea
+        // how to find it?
+
+        // at first lets find position of text node relative to the stage:
+        var textPosition = newText.absolutePosition();
+
+        // so position of textarea will be the sum of positions above:
+        var areaPosition = {
+          x: stage.container().offsetLeft + textPosition.x,
+          y: stage.container().offsetTop + textPosition.y,
+        };
+
+        // create textarea and style it
+        var textarea = document.createElement('textarea');
+        document.body.appendChild(textarea);
+
+        // apply many styles to match text on canvas as close as possible
+        // remember that text rendering on canvas and on the textarea can be different
+        // and sometimes it is hard to make it 100% the same. But we will try...
+        textarea.value = newText.text();
+        textarea.style.position = 'absolute';
+        textarea.style.top = areaPosition.y + 'px';
+        textarea.style.left = areaPosition.x + 'px';
+        textarea.style.width = newText.width() - newText.padding() * 2 + 'px';
+        textarea.style.height =
+          newText.height() - newText.padding() * 2 + 5 + 'px';
+        textarea.style.fontSize = newText.fontSize() + 'px';
+        textarea.style.border = 'none';
+        textarea.style.padding = '0px';
+        textarea.style.margin = '0px';
+        textarea.style.overflow = 'hidden';
+        textarea.style.background = 'none';
+        textarea.style.outline = 'none';
+        textarea.style.resize = 'none';
+        textarea.style.lineHeight = newText.lineHeight().toString();
+        textarea.style.fontFamily = newText.fontFamily();
+        textarea.style.transformOrigin = 'left top';
+        textarea.style.textAlign = newText.align();
+        textarea.style.color = newText.fill();
+
+        var px = 0;
+        // also we need to slightly move textarea on firefox
+        // because it jumps a bit
+        var isFirefox =
+          navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
+        if (isFirefox) {
+          px += 2 + Math.round(newText.fontSize() / 20);
+        }
+
+        // reset height
+        textarea.style.height = 'auto';
+        // after browsers resized it we can set actual value
+        textarea.style.height = textarea.scrollHeight + 3 + 'px';
+
+        textarea.focus();
+
+        function removeTextarea() {
+          textarea.parentNode?.removeChild(textarea);
+          window.removeEventListener('click', handleOutsideClick);
+          newText.show();
+        }
+
+        textarea.addEventListener('keydown', function (e) {
+          // hide on enter
+          // but don't hide on shift + enter
+          if (e.keyCode === 13 && !e.shiftKey) {
+            newText.text(textarea.value);
+            removeTextarea();
+          }
+          // on esc do not set value back to node
+          if (e.keyCode === 27) {
+            removeTextarea();
+          }
+        });
+
+        textarea.addEventListener('keydown', function (e) {
+          let scale = newText.getAbsoluteScale().x;
+          textarea.style.height = 'auto';
+          textarea.style.height =
+            textarea.scrollHeight + newText.fontSize() + 'px';
+        });
+
+        function handleOutsideClick(e: any) {
+          if (e.target !== textarea) {
+            newText.text(textarea.value);
+            removeTextarea();
+          }
+        }
+        setTimeout(() => {
+          window.addEventListener('click', handleOutsideClick);
+        });
+      });
+      stage.add(stageLayer);
+    };
+
+    const addButton = () => {
+      const transformerNode = transformer.value.getNode();
+      const stage = transformerNode.getStage() as Stage;
+
+      var button = new Group({
+        id: Math.round(Math.random() * 10000).toString(),
+        x: Math.round(Math.random() * width),
+        y: Math.round(Math.random() * height),
+        width: 130,
+        height: 25,
+        draggable: true,
+      });
+
+      button.add(
+        new Rect({
+          width: 130,
+          height: 25,
+          fill: "lightblue",
+        })
+      );
+
+      button.add(
+        new Text({
+          text: "Button",
+          fontSize: 18,
+          fontFamily: "Calibri",
+          fill: "#000",
+          width: 130,
+          padding: 5,
+          align: "center",
+        })
+      );
+
+      buttonList.value.push(button);
+      stageLayer.add(button);
+      stage.add(stageLayer);
+    };
+
+    //Lines
     const stepSize = 50;
     var gridLayer = new Layer();
     function drawLinesSolution() {
@@ -372,67 +549,7 @@ export default defineComponent({
       stage.add(guideLines);
     }
 
-    var textLayer = new Layer();
-    const addText = () => {
-      const transformerNode = transformer.value.getNode();
-      const stage = transformerNode.getStage() as Stage;
-
-      var newText = new Text({
-        id: Math.round(Math.random() * 10000).toString(),
-        x: Math.round(Math.random() * width),
-        y: Math.round(Math.random() * height),
-        fill: Util.getRandomColor(),
-        width: 150,
-        height: 100,
-        text: "Text",
-        fontSize: 30,
-        draggable: true,
-      });
-
-      textList.value.push(newText);
-      textLayer.add(newText);
-      stage.add(textLayer);
-    };
-
-    var buttonLayer = new Layer();
-    const addButton = () => {
-      const transformerNode = transformer.value.getNode();
-      const stage = transformerNode.getStage() as Stage;
-
-      var button = new Group({
-        id: Math.round(Math.random() * 10000).toString(),
-        x: Math.round(Math.random() * width),
-        y: Math.round(Math.random() * height),
-        width: 130,
-        height: 25,
-        draggable: true,
-      });
-
-      button.add(
-        new Rect({
-          width: 130,
-          height: 25,
-          fill: "lightblue",
-        })
-      );
-
-      button.add(
-        new Text({
-          text: "Button",
-          fontSize: 18,
-          fontFamily: "Calibri",
-          fill: "#000",
-          width: 130,
-          padding: 5,
-          align: "center",
-        })
-      );
-
-      buttonList.value.push(button);
-      buttonLayer.add(button);
-      stage.add(buttonLayer);
-    };
-
+    //Transform Components
     const handleTransformEnd = (e: KonvaEventObject<KonvaNodeEvent>) => {
       // shape is transformed, let us save new attrs back to the node
       // find element in our state
@@ -441,6 +558,7 @@ export default defineComponent({
       )!.attrs;
 
       if (shape && !(shape instanceof Layer)) {
+        console.log("SHAPE", shape)
         // update the state
         shape.x = e.target.x();
         shape.y = e.target.y();
@@ -455,6 +573,7 @@ export default defineComponent({
           (r) => r.id() === selectedShapeId.value
         )!.attrs;
         if (shape && !(shape instanceof Layer)) {
+          console.log("handleTransformEnd Text")
           // update the state
           shape.x = e.target.x();
           shape.y = e.target.y();
@@ -469,6 +588,7 @@ export default defineComponent({
             (r) => r.id() === selectedShapeId.value
           )!.attrs;
           if (shape && !(shape instanceof Layer)) {
+            console.log("handleTransformEnd Button")
             // update the state
             shape.x = e.target.x();
             shape.y = e.target.y();
@@ -570,18 +690,23 @@ export default defineComponent({
       }
 
       // find clicked shape by its name
-      const id = e.target.id();
-      const shape = rectList.value.find((r) => r.id() === id);
-
+      let id = e.target.attrs.id;
+      const shape = rectList.value.find((r) => r.attrs.id === id);
       if (shape && !(shape instanceof Layer)) {
+        console.log("SHAPERECT", shape)
         selectedShapeId.value = id;
       } else {
-        const shape = buttonList.value.find((r) => r.id() === id);
+        const shape = textList.value.find((r) => r.attrs.id === id);
         if (shape && !(shape instanceof Layer)) {
+          console.log("handleStageMouseDown Text")
           selectedShapeId.value = id;
         } else {
-          const shape = buttonList.value.find((r) => r.id() === id);
+          id = e.target.parent?.attrs.id
+          const shape = buttonList.value.find((r) => r.attrs.id === id);
+          console.log("SHAPEBUTTON", id)
+          console.log("SHAPEBUTTON", buttonList.value)
           if (shape && !(shape instanceof Layer)) {
+            console.log("handleStageMouseDown Button")
             selectedShapeId.value = id;
           } else {
             selectedShapeId.value = "";
@@ -644,6 +769,10 @@ export default defineComponent({
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 
+
+
+
+
 .canvas {
   height: 100%;
   margin: 20px;
@@ -683,6 +812,7 @@ a {
   -ms-transition: all 1s ease;
   transition: all 1s ease;
   z-index: 9999;
+  cursor:pointer;
 }
 
 .drawer #button.active {
@@ -694,6 +824,7 @@ a {
   -o-transition: all 1s ease;
   -ms-transition: all 1s ease;
   transition: all 1s ease;
+  cursor: pointer;
 }
 
 .drawer {
@@ -759,6 +890,18 @@ a {
   color: white;
   text-decoration: none;
   border: 0;
+  cursor: pointer;
+}
+.drawer_center button:hover {
+  width: 105px;
+  height: 105px;
+
+  -webkit-transition: all 1s ease;
+    -moz-transition: all 1s ease;
+    -o-transition: all 1s ease;
+    -ms-transition: all 1s ease;
+    transition: all 1s ease;
+  
 }
 
 .drawer h3 {

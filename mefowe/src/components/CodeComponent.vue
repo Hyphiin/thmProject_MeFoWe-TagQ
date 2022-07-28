@@ -37,9 +37,9 @@ export default defineComponent({
   setup(props, context) {
     const template = ref<string>("Awaiting Template... BiBaBub");
 
-    onMounted(async () => {
-      template.value = await generateTemplate(props.chosenLayout);
-    });
+    // onMounted(async () => {
+    //   template.value = await generateTemplate(props.chosenLayout);
+    // });
 
     const body = ref<string>("");
     const stylePart = ref<string>("");
