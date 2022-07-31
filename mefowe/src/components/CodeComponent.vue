@@ -238,7 +238,7 @@ a {
   /* display: none; */
 
   opacity: 0;
-  width: 1800px;
+  width: 1300px;
   height: 1000px;
   z-index: -10;
 }

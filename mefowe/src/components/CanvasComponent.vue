@@ -15,9 +15,48 @@
       <div id="container">
         <div id="cont">
           <div class="drawer_center">
-            <button @click="addRect">Add Rect</button>
-            <button @click="addText">Add Text</button>
-            <button @click="addButton">Add Button</button>
+            <button @click="addRect"><span class="material-symbols-outlined">
+                rectangle
+              </span>Add Rect</button>
+
+            <button @click="addText"><span class="material-symbols-outlined">
+                text_fields
+              </span>Add Text</button>
+            <button @click="addButton"><span class="material-symbols-outlined">
+                smart_button
+              </span>Add Button</button>
+          </div>
+        </div>
+      </div>
+      <div v-if="activeComponent !== null" id="edit-container">
+        <div id="cont">
+          <div class="drawer_center">
+            <button class="edit-component-btn" @click="editCompIsActive = !editCompIsActive"><span
+                class="material-symbols-outlined">
+                settings
+              </span>Edit Component</button>
+            <div class="edit-comp_div" v-if="editCompIsActive">
+              <div>
+                Background-Color:
+                <input v-model="activeCompBgColor">
+              </div>
+              <div v-if="activeComponent.className !== 'Text'">
+                Border:
+                <input v-model="activeStroke">
+              </div>
+              <div v-if="activeComponent.className !== 'Text'">
+                BorderWidth:
+                <input v-model="activeStrokeWidth">
+              </div>
+              <div v-if="activeComponent.className !== 'Text'">
+                Border-Radius:
+                <input v-model="activeCornerRadius">
+              </div>
+              <div v-if="activeComponent.className === 'Text'">
+                Font-Size:
+                <input v-model="activeFontSize">
+              </div>              
+            </div>
           </div>
         </div>
       </div>
@@ -46,6 +85,7 @@ import { Stage } from "konva/lib/Stage";
 import { Layer } from "konva/lib/Layer";
 import resemble from "resemblejs";
 import { Line } from "konva/lib/shapes/Line";
+import { computed } from "@vue/reactivity";
 //import DrawerComponent from "@/components/DrawerComponent.vue"; // @ is an alias to /src
 
 export default defineComponent({
@@ -62,7 +102,7 @@ export default defineComponent({
     },
   },
   setup(props, context) {
-    const width = 1800;
+    const width = 1300;
     const height = 1000;
 
     const rectList = ref<Rect[]>([]);
@@ -90,13 +130,11 @@ export default defineComponent({
       }
     );
 
-    const handleDragstart = (e: DragEvent) => {
-      console.log("handleDragstart", e.target)
-      if (e.target != null && e.target instanceof Rect) {
+    const handleDragstart = (e: DragEvent) => {     
+      if (e.target != null && e.target instanceof Rect) {        
         // save drag element:
         dragItemId.value = e.target.attrs.id
         // move current element to the top:
-        console.log("handleDragstart2",e.target);
         const item = rectList.value.find((i) => i.id() === dragItemId.value);
         const index = rectList.value.indexOf(item as Rect);
         rectList.value.splice(index, 1);
@@ -105,7 +143,6 @@ export default defineComponent({
         // save drag element:
         dragItemId.value = e.target.attrs.id
         // move current element to the top:
-        console.log("handleDragstart2", e.target);
         const item = textList.value.find((i) => i.id() === dragItemId.value);
         const index = textList.value.indexOf(item as Text);
         textList.value.splice(index, 1);
@@ -114,7 +151,6 @@ export default defineComponent({
         // save drag element:
         dragItemId.value = e.target.attrs.id
         // move current element to the top:
-        console.log("handleDragstart2", e.target);
         const item = buttonList.value.find((i) => i.id() === dragItemId.value);
         const index = buttonList.value.indexOf(item as Group);
         buttonList.value.splice(index, 1);
@@ -166,11 +202,9 @@ export default defineComponent({
           if (stage.children) {
             stage.children.splice(1, 1);
 
-            console.log(stage);
-
             let compareImage = "";
             stage.toDataURL({
-              width: 1800,
+              width: 1300,
               height: 1000,
               callback(img) {
                 compareImage = img;
@@ -225,11 +259,13 @@ export default defineComponent({
         id: Math.round(Math.random() * 10000).toString(),
         x: Math.round(Math.random() * width),
         y: Math.round(Math.random() * height),
-        stroke: Util.getRandomColor(),
-        strokeWidth: 2,
+        fill: Util.getRandomColor(),
         width: 100,
         height: 100,
         draggable: true,
+        stroke: Util.getRandomColor(),
+        strokeWidth: Math.round(Math.random() * 5),
+        cornerRadius: Math.round(Math.random() * 5),
       });
       rectList.value.push(newRect);
       stageLayer.add(newRect);
@@ -245,8 +281,6 @@ export default defineComponent({
         x: Math.round(Math.random() * width),
         y: Math.round(Math.random() * height),
         fill: Util.getRandomColor(),
-        width: 280,
-        height: 100,
         text: "Double Click to edit",
         fontSize: 30,
         draggable: true,
@@ -364,26 +398,27 @@ export default defineComponent({
         x: Math.round(Math.random() * width),
         y: Math.round(Math.random() * height),
         width: 130,
-        height: 25,
+        height: 40,
         draggable: true,
       });
 
       button.add(
         new Rect({
-          width: 130,
-          height: 25,
-          fill: "lightblue",
+          width: 150,
+          height: 40,
+          fill: Util.getRandomColor(),
+          cornerRadius: 4
         })
       );
 
       button.add(
         new Text({
           text: "Button",
-          fontSize: 18,
+          fontSize: 24,
           fontFamily: "Calibri",
           fill: "#000",
-          width: 130,
-          padding: 5,
+          width: 150,
+          padding: 10,
           align: "center",
         })
       );
@@ -606,7 +641,6 @@ export default defineComponent({
       )!.attrs;
 
       if (shape && !(shape instanceof Layer)) {
-        console.log("SHAPE", shape)
         // update the state
         shape.x = e.target.x();
         shape.y = e.target.y();
@@ -621,7 +655,6 @@ export default defineComponent({
           (r) => r.id() === selectedShapeId.value
         )!.attrs;
         if (shape && !(shape instanceof Layer)) {
-          console.log("handleTransformEnd Text")
           // update the state
           shape.x = e.target.x();
           shape.y = e.target.y();
@@ -636,7 +669,6 @@ export default defineComponent({
             (r) => r.id() === selectedShapeId.value
           )!.attrs;
           if (shape && !(shape instanceof Layer)) {
-            console.log("handleTransformEnd Button")
             // update the state
             shape.x = e.target.x();
             shape.y = e.target.y();
@@ -741,20 +773,21 @@ export default defineComponent({
       let id = e.target.attrs.id;
       const shape = rectList.value.find((r) => r.attrs.id === id);
       if (shape && !(shape instanceof Layer)) {
-        console.log("SHAPERECT", shape)
+        activeComponent.value = shape as Rect
+        setActiveAttributes(shape as Rect)
         selectedShapeId.value = id;
       } else {
         const shape = textList.value.find((r) => r.attrs.id === id);
         if (shape && !(shape instanceof Layer)) {
-          console.log("handleStageMouseDown Text")
+          activeComponent.value = shape
+          setActiveAttributes(shape as Text)
           selectedShapeId.value = id;
         } else {
           id = e.target.parent?.attrs.id
           const shape = buttonList.value.find((r) => r.attrs.id === id);
-          console.log("SHAPEBUTTON", id)
-          console.log("SHAPEBUTTON", buttonList.value)
           if (shape && !(shape instanceof Layer)) {
-            console.log("handleStageMouseDown Button")
+            activeComponent.value = shape
+            setActiveAttributes(shape as Group)
             selectedShapeId.value = id;
           } else {
             selectedShapeId.value = "";
@@ -785,6 +818,145 @@ export default defineComponent({
     };
 
     let drawerIsActive = ref<boolean>(false)
+    let editCompIsActive = ref<boolean>(false)
+    let activeComponent = ref<Rect | Text | Group | null>(null)
+
+
+    let activeCompBgColor = ref<string>("hello")
+    watch(() => activeCompBgColor.value, 
+    (newValue) => {
+      console.log("watch",activeCompBgColor.value)
+      if (activeComponent.value !== null) {     
+        const transformerNode = transformer.value.getNode();
+        const stage = transformerNode.getStage() as Stage;
+   
+        let id = activeComponent.value.attrs.id;
+        const shape = rectList.value.find((r) => r.attrs.id === id);
+        if (shape && !(shape instanceof Layer)) {
+          shape.attrs.fill = newValue
+          setActiveAttributes(shape as Rect)
+        } else {
+          const shape = textList.value.find((r) => r.attrs.id === id);
+          if (shape && !(shape instanceof Layer)) {
+            shape.attrs.fill = newValue
+            setActiveAttributes(shape as Text)
+          } else {
+            id = activeComponent.value.parent?.attrs.id
+            const shape = buttonList.value.find((r) => r.attrs.id === id);
+            console.log("SHAPEE",shape)
+            //TODOOOO
+            if (shape && !(shape instanceof Layer) && shape.children !== undefined) {
+              shape.children[0].attrs.fill = newValue
+              setActiveAttributes(shape as Group)              
+            }
+          }
+        } 
+        stage.add(stageLayer);   
+      }     
+    });
+
+    let activeCornerRadius = ref<number>(0)
+    watch(() => activeCornerRadius.value,
+      (newValue) => {
+        if (activeComponent.value !== null) {
+          const transformerNode = transformer.value.getNode();
+          const stage = transformerNode.getStage() as Stage;
+
+          let id = activeComponent.value.attrs.id;
+          const shape = rectList.value.find((r) => r.attrs.id === id);
+          if (shape && !(shape instanceof Layer)) {
+            shape.attrs.cornerRadius = parseInt(newValue.toString());
+            setActiveAttributes(shape as Rect)
+          } else {           
+            id = activeComponent.value.parent?.attrs.id
+            const shape = buttonList.value.find((r) => r.attrs.id === id);
+            if (shape && !(shape instanceof Layer) && shape.children !== undefined) {
+              shape.children[0].attrs.cornerRadius = parseInt(newValue.toString());
+              setActiveAttributes(shape as Group)
+            }
+          }
+          stage.add(stageLayer);
+        }
+    });
+
+    let activeStroke = ref<string>("")
+    watch(() => activeStroke.value,
+      (newValue) => {
+        if (activeComponent.value !== null) {
+          const transformerNode = transformer.value.getNode();
+          const stage = transformerNode.getStage() as Stage;
+          let id = activeComponent.value.attrs.id;
+          const shape = rectList.value.find((r) => r.attrs.id === id);
+          if (shape && !(shape instanceof Layer)) {
+            shape.attrs.stroke = newValue
+            setActiveAttributes(shape as Rect)
+          } else {
+            id = activeComponent.value.parent?.attrs.id
+            const shape = buttonList.value.find((r) => r.attrs.id === id);
+            if (shape && !(shape instanceof Layer) && shape.children !== undefined) {
+              shape.children[0].attrs.stroke = newValue
+              setActiveAttributes(shape as Group)
+            }
+          }
+          stage.add(stageLayer);
+        }
+    });
+
+    let activeStrokeWidth = ref<number>(0)
+    watch(() => activeStrokeWidth.value,
+      (newValue) => {
+        if (activeComponent.value !== null) {
+          const transformerNode = transformer.value.getNode();
+          const stage = transformerNode.getStage() as Stage;
+          let id = activeComponent.value.attrs.id;
+          const shape = rectList.value.find((r) => r.attrs.id === id);
+          if (shape && !(shape instanceof Layer)) {
+            shape.attrs.strokeWidth = parseInt(newValue.toString());
+            setActiveAttributes(shape as Rect)
+          } else {
+            id = activeComponent.value.parent?.attrs.id
+            const shape = buttonList.value.find((r) => r.attrs.id === id);
+            if (shape && !(shape instanceof Layer) && shape.children !== undefined) {
+              shape.children[0].attrs.strokeWidth = parseInt(newValue.toString());
+              setActiveAttributes(shape as Group)
+            }
+          }
+          stage.add(stageLayer);
+        }
+    });
+
+    let activeFontSize = ref<number>(0)
+    watch(() => activeFontSize.value,
+      (newValue) => {
+        if (activeComponent.value !== null) {
+          const transformerNode = transformer.value.getNode();
+          const stage = transformerNode.getStage() as Stage;
+          let id = activeComponent.value.attrs.id;
+          const shape = textList.value.find((r) => r.attrs.id === id);
+          if (shape && !(shape instanceof Layer)) {
+            shape.attrs.fontSize = parseInt(newValue.toString());
+            setActiveAttributes(shape as Text)
+          }
+          stage.add(stageLayer);
+        }
+    });
+
+    const setActiveAttributes = (activeComp: Rect | Text | Group) => {
+      activeCompBgColor.value = activeComp.attrs.fill     
+      activeCornerRadius.value = activeComp.attrs.cornerRadius
+      activeStroke.value = activeComp.attrs.stroke
+      activeStrokeWidth.value = activeComp.attrs.strokeWidth
+      activeFontSize.value = activeComp.attrs.fontSize
+      if(activeComp instanceof Group && activeComp.children !== undefined){
+        console.log(activeComp)
+        activeCompBgColor.value = activeComp.children[0].attrs.fill
+        activeCornerRadius.value = activeComp.children[0].attrs.cornerRadius
+        activeStroke.value = activeComp.children[0].attrs.stroke
+        activeStrokeWidth.value = activeComp.children[0].attrs.strokeWidth
+        activeFontSize.value = activeComp.children[1].attrs.fontSize
+      }
+    }
+
 
     return {
       rectList,
@@ -809,7 +981,14 @@ export default defineComponent({
       updateTransformer,
       drawLinesSolution,
       handleDragmove,
-      drawerIsActive
+      drawerIsActive,
+      editCompIsActive,
+      activeComponent,
+      activeCompBgColor,
+      activeCornerRadius,
+      activeStroke,
+      activeStrokeWidth,
+      activeFontSize,
     };
   },
 });
@@ -817,6 +996,10 @@ export default defineComponent({
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+
+
+
+
 
 
 
@@ -880,8 +1063,7 @@ a {
   top: 110px;
   right: -32px;
   position: fixed;
-  width: 2em;
-  height: 50%;
+  width: 2em;  
   overflow: hidden;
   margin: 0 auto;
   border-radius: 6px;
@@ -920,6 +1102,17 @@ a {
   flex-wrap: wrap;
 }
 
+.drawer #edit-container {
+  margin-top: 5px;
+  width: 100%;
+  height: 50%;
+  position: relative;
+  top: 0;
+  left: 0;
+  background-color: #21333c;
+  color: #21333c;
+}
+
 .drawer_center {
   width: 500px;
   text-align: center;
@@ -928,10 +1121,37 @@ a {
 }
 
 .drawer_center button {
-  width: 100px;
-  height: 100px;
-  margin-left: 15px;
-  margin-top: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-evenly;
+  width: 90px;
+  height: 90px;
+  margin: 10px;
+  padding: 6px 10px;
+  font-weight: bold;
+  border-radius: 3px;
+  background-color: #80ba24;
+  color: white;
+  text-decoration: none;
+  border: 0;
+  cursor: pointer;
+  
+}
+.drawer_center button span {
+  font-size: 32px;
+}
+.drawer_center button:hover {
+  background-color: #6ca512;
+}
+.drawer_center .edit-component-btn {
+  display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-evenly;
+  width: 150px;
+  height: 40px;
+  margin: 10px;
   padding: 6px 10px;
   font-weight: bold;
   border-radius: 3px;
@@ -941,16 +1161,12 @@ a {
   border: 0;
   cursor: pointer;
 }
-.drawer_center button:hover {
-  width: 105px;
-  height: 105px;
+.drawer_center .edit-component-btn span {
+  font-size: 24px;
+}
 
-  -webkit-transition: all 1s ease;
-    -moz-transition: all 1s ease;
-    -o-transition: all 1s ease;
-    -ms-transition: all 1s ease;
-    transition: all 1s ease;
-  
+.drawer_center .edit-component-btn:hover {
+  background-color: #6ca512;
 }
 
 .drawer h3 {
@@ -971,5 +1187,14 @@ a {
 
 #comparison__container {
   color: white;
+}
+
+.edit-comp_div{
+  font-size: 12px;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-left: 10px;
 }
 </style>
