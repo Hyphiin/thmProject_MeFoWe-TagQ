@@ -654,6 +654,7 @@ export default defineComponent({
         const shape = buttonList.value.find(
           (r) => r.id() === selectedShapeId.value
         )!.attrs;
+        console.log("SHPE", shape)
         if (shape && !(shape instanceof Layer)) {
           // update the state
           shape.x = e.target.x();
@@ -784,7 +785,7 @@ export default defineComponent({
           selectedShapeId.value = id;
         } else {
           id = e.target.parent?.attrs.id
-          const shape = buttonList.value.find((r) => r.attrs.id === id);
+          const shape = buttonList.value.find((r) => r.id() === id);
           if (shape && !(shape instanceof Layer)) {
             activeComponent.value = shape
             setActiveAttributes(shape as Group)
@@ -841,10 +842,8 @@ export default defineComponent({
             shape.attrs.fill = newValue
             setActiveAttributes(shape as Text)
           } else {
-            id = activeComponent.value.parent?.attrs.id
-            const shape = buttonList.value.find((r) => r.attrs.id === id);
-            console.log("SHAPEE",shape)
-            //TODOOOO
+            id = activeComponent.value._id
+            const shape = buttonList.value.find((r) => r._id === id);
             if (shape && !(shape instanceof Layer) && shape.children !== undefined) {
               shape.children[0].attrs.fill = newValue
               setActiveAttributes(shape as Group)              
@@ -868,11 +867,14 @@ export default defineComponent({
             shape.attrs.cornerRadius = parseInt(newValue.toString());
             setActiveAttributes(shape as Rect)
           } else {           
-            id = activeComponent.value.parent?.attrs.id
-            const shape = buttonList.value.find((r) => r.attrs.id === id);
+            id = activeComponent.value._id
+            const shape = buttonList.value.find((r) => r._id === id);
             if (shape && !(shape instanceof Layer) && shape.children !== undefined) {
-              shape.children[0].attrs.cornerRadius = parseInt(newValue.toString());
-              setActiveAttributes(shape as Group)
+              console.log("activeCornerRadius",shape.children[0])
+              if (shape.children[0].attrs.cornerRadius !== undefined) {
+                shape.children[0].attrs.cornerRadius = parseInt(newValue.toString());
+                setActiveAttributes(shape as Group)
+              }
             }
           }
           stage.add(stageLayer);
@@ -891,9 +893,10 @@ export default defineComponent({
             shape.attrs.stroke = newValue
             setActiveAttributes(shape as Rect)
           } else {
-            id = activeComponent.value.parent?.attrs.id
-            const shape = buttonList.value.find((r) => r.attrs.id === id);
+            id = activeComponent.value._id
+            const shape = buttonList.value.find((r) => r._id === id);
             if (shape && !(shape instanceof Layer) && shape.children !== undefined) {
+              console.log("activeStroke",shape.children[0])
               shape.children[0].attrs.stroke = newValue
               setActiveAttributes(shape as Group)
             }
@@ -914,11 +917,16 @@ export default defineComponent({
             shape.attrs.strokeWidth = parseInt(newValue.toString());
             setActiveAttributes(shape as Rect)
           } else {
-            id = activeComponent.value.parent?.attrs.id
-            const shape = buttonList.value.find((r) => r.attrs.id === id);
+            id = activeComponent.value._id
+            const shape = buttonList.value.find((r) => r._id === id);
             if (shape && !(shape instanceof Layer) && shape.children !== undefined) {
-              shape.children[0].attrs.strokeWidth = parseInt(newValue.toString());
-              setActiveAttributes(shape as Group)
+              console.log("activeStrokeWidth",shape.children[0])
+              console.log("__________", shape.children[0].attrs.strokeWidth)
+              if (newValue !== undefined){
+                shape.children[0].attrs.strokeWidth = parseInt(newValue.toString());
+                console.log("------------",shape.children[0].attrs.strokeWidth)
+                setActiveAttributes(shape as Group)
+              }            
             }
           }
           stage.add(stageLayer);
@@ -948,7 +956,6 @@ export default defineComponent({
       activeStrokeWidth.value = activeComp.attrs.strokeWidth
       activeFontSize.value = activeComp.attrs.fontSize
       if(activeComp instanceof Group && activeComp.children !== undefined){
-        console.log(activeComp)
         activeCompBgColor.value = activeComp.children[0].attrs.fill
         activeCornerRadius.value = activeComp.children[0].attrs.cornerRadius
         activeStroke.value = activeComp.children[0].attrs.stroke
@@ -956,7 +963,6 @@ export default defineComponent({
         activeFontSize.value = activeComp.children[1].attrs.fontSize
       }
     }
-
 
     return {
       rectList,
