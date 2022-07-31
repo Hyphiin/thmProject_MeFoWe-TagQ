@@ -1,10 +1,18 @@
 <template>
   <div class="code">
-    <div>
-      <pre><code>{{body}}</code></pre>
+    <div v-if="loading" class="lds-ring">
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
     </div>
-    <div>
-      <pre><code>{{stylePart}}</code></pre>
+    <div v-if="!loading">
+      <div>
+        <pre><code>{{body}}</code></pre>
+      </div>
+      <div>
+        <pre><code>{{stylePart}}</code></pre>
+      </div>
     </div>
     <iframe id="theFrame" src="about:blank" />
   </div>
@@ -31,10 +39,15 @@ export default defineComponent({
     },
   },
   setup(props, context) {
-    const template = ref<string>("Awaiting Template... BiBaBub");
+    const template = ref<string>("abc");
+    const loading = ref<boolean>(false);
 
     onMounted(async () => {
-      template.value = await generateTemplate(props.chosenLayout);
+      loading.value = true;
+      await generateTemplate(props.chosenLayout).then((result) => {
+        template.value = result;
+        loading.value = false;
+      });
     });
 
     const body = ref<string>("");
@@ -43,6 +56,7 @@ export default defineComponent({
     watch(
       () => template.value,
       (newValue) => {
+        console.log(template.value);
         if (template.value.length > 0) {
           let frame = document.getElementById("theFrame");
           let doc = document.implementation.createHTMLDocument("New Document");
@@ -89,6 +103,7 @@ export default defineComponent({
                       newNode,
                       destDocument.documentElement
                     );
+
                     const screenshotTarget = destDocument.body;
 
                     html2canvas(screenshotTarget).then((canvas) => {
@@ -171,7 +186,11 @@ export default defineComponent({
     watch(
       () => store.state.chosenOption,
       async (newValue) => {
-        template.value = await generateTemplate(newValue);
+        loading.value = true;
+        await generateTemplate(newValue).then((result) => {
+          template.value = result;
+          loading.value = false;
+        });
       }
     );
 
@@ -204,6 +223,7 @@ export default defineComponent({
 
     return {
       template,
+      loading,
       body,
       stylePart,
     };
@@ -241,5 +261,41 @@ a {
   width: 1800px;
   height: 1000px;
   z-index: -10;
+}
+
+.lds-ring {
+  display: inline-block;
+  position: relative;
+  width: 80px;
+  height: 80px;
+}
+.lds-ring div {
+  box-sizing: border-box;
+  display: block;
+  position: absolute;
+  width: 64px;
+  height: 64px;
+  margin: 8px;
+  border: 8px solid #fff;
+  border-radius: 50%;
+  animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+  border-color: #fff transparent transparent transparent;
+}
+.lds-ring div:nth-child(1) {
+  animation-delay: -0.45s;
+}
+.lds-ring div:nth-child(2) {
+  animation-delay: -0.3s;
+}
+.lds-ring div:nth-child(3) {
+  animation-delay: -0.15s;
+}
+@keyframes lds-ring {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 </style>

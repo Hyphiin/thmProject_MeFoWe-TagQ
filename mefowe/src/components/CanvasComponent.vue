@@ -9,6 +9,7 @@
     <v-stage
       ref="stage"
       :config="configKonva"
+      style="background-color: white"
       @dragstart="handleDragstart"
       @dragend="handleDragend"
       @dragmove="handleDragmove"
@@ -165,6 +166,9 @@ export default defineComponent({
 
             container.appendChild(canvasImg);
 
+            console.log(userImage.value);
+            console.log(compareImage);
+
             resemble(userImage.value)
               .compareTo(compareImage)
               .ignoreColors()
@@ -180,18 +184,14 @@ export default defineComponent({
 
     const nextQuestion = () => {
       compared.value = false;
+      result.value = undefined;
+      for (var i = document.images.length; i-- > 0; )
+        document!.images[i]!.parentNode!.removeChild(document.images[i]);
 
       context.emit("nextQuestion");
-
-      setTimeout(() => {
-        // const transformerNode = transformer.value.getNode();
-        // const stage = transformerNode.getStage() as Stage;
-
-        // stage.clear();
-        rectLayer.clear();
-        textLayer.clear();
-        buttonLayer.clear();
-      }, 2000);
+      rectLayer.clear();
+      textLayer.clear();
+      buttonLayer.clear();
     };
 
     var rectLayer = new Layer();
