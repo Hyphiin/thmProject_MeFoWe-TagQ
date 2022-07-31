@@ -1,7 +1,7 @@
 <template>
   <div class="canvas__component">
     <button v-if="userImage" @click="compare">Compare</button>
-    <button v-if="compared" @click="nextQuestion">Nächstes Level</button>
+    <button v-if="compared" @click="nextQuestion">Nächste Frage</button>
     <!-- <button @click="safeBoard">Safe Board</button> -->
     <v-stage ref="stage" :config="configKonva" @dragstart="handleDragstart" @dragend="handleDragend"
       @dragmove="handleDragmove" @mousedown="handleStageMouseDown" @touchstart="handleStageMouseDown">
@@ -21,6 +21,14 @@
           </div>
         </div>
       </div>
+    </div>
+    <div id="comparison__container">
+      <h1 v-if="result">Ergebnis:</h1>
+      <h2 v-if="result">
+        {{ 100 - result.misMatchPercentage }}% Übereinstimmung konnte
+        festgestellt werden.
+      </h2>
+      <div id="container__images"></div>
     </div>
   </div>
 </template>
@@ -54,8 +62,8 @@ export default defineComponent({
     },
   },
   setup(props, context) {
-    const width = window.innerWidth * 0.66;
-    const height = window.innerHeight * 0.85;
+    const width = 1800;
+    const height = 1000;
 
     const rectList = ref<Rect[]>([]);
     const textList = ref<Text[]>([]);
@@ -129,27 +137,67 @@ export default defineComponent({
       // });
     };
 
+    const result = ref<resemble.ComparisonResult>();
+
     const compared = ref<boolean>(false);
 
     const compare = () => {
-      if (userImage.value) {
-        const transformerNode = transformer.value.getNode();
-        const stage = transformerNode.getStage() as Stage;
-        let compareImage = "";
-        stage.toDataURL({
-          pixelRatio: 2,
-          callback(img) {
-            compareImage = img;
-          },
-        });
+      for (var i = document.images.length; i-- > 0; )
+        document!.images[i]!.parentNode!.removeChild(document.images[i]);
 
-        resemble(userImage.value)
-          .compareTo(compareImage)
-          .ignoreColors()
-          .onComplete(function (data) {
-            console.log(data);
-            compared.value = true;
-          });
+      if (userImage.value) {
+        const comparisonImg = new Image();
+        comparisonImg.src = userImage.value;
+        comparisonImg.width = 600;
+        comparisonImg.height = 380;
+        comparisonImg.style.margin = "20px";
+        comparisonImg.style.marginTop = "80px";
+        comparisonImg.style.border = "medium solid grey";
+        comparisonImg.style.borderRadius = "8px";
+
+        const container = document.getElementById("container__images");
+
+        if (container !== null) {
+          container.appendChild(comparisonImg);
+
+          const transformerNode = transformer.value.getNode();
+          const stage = transformerNode.getStage() as Stage;
+
+          if (stage.children) {
+            stage.children.splice(1, 1);
+
+            console.log(stage);
+
+            let compareImage = "";
+            stage.toDataURL({
+              width: 1800,
+              height: 1000,
+              callback(img) {
+                compareImage = img;
+              },
+            });
+
+            const canvasImg = new Image();
+            canvasImg.src = compareImage;
+            canvasImg.width = 600;
+            canvasImg.height = 380;
+            canvasImg.style.margin = "20px";
+            canvasImg.style.marginTop = "80px";
+            canvasImg.style.border = "medium solid grey";
+            canvasImg.style.borderRadius = "8px";
+
+            container.appendChild(canvasImg);
+
+            resemble(userImage.value)
+              .compareTo(compareImage)
+              .ignoreColors()
+              .onComplete(function (data) {
+                console.log(data);
+                result.value = data;
+                compared.value = true;
+              });
+          }
+        }
       }
     };
 
@@ -750,6 +798,7 @@ export default defineComponent({
       handleDragend,
       safeBoard,
       compared,
+      result,
       compare,
       nextQuestion,
       addRect,
@@ -909,5 +958,18 @@ a {
   font-weight: 100;
   margin-top: 70px;
   margin-left: 40px;
+}
+
+.toggle::before {
+  content: "x";
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  line-height: 30px;
+  text-align: center;
+}
+
+#comparison__container {
+  color: white;
 }
 </style>

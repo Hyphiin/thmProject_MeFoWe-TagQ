@@ -14,7 +14,7 @@
         <div class="footer_center">
           <h3>Medienfokussierte Webanwendungen</h3>
           <h4>Sommersemester 2022</h4>
-          <h5>Chiara Knipprath | Felix Wegener | Nils Günther</h5>
+          <h5>Chiara Knipprath | Felix Wegener | Nils Friedrich</h5>
         </div>
       </div>
     </div>
