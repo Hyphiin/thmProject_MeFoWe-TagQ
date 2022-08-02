@@ -28,9 +28,12 @@ export default defineComponent({
           chosenOption.value = store.state.level1[getRandomInt(0, 4)];
           break;
         }
-        case "level2":
-        case "level3": {
+        case "level2": {
           chosenOption.value = store.state.level2[getRandomInt(0, 4)];
+          break;
+        }
+        case "level3": {
+          chosenOption.value = store.state.level3[getRandomInt(0, 4)];
           break;
         }
         default: {

@@ -1,32 +1,66 @@
 <template>
   <div class="canvas__component">
-    <button @click="addRect">Add Rect</button>
-    <button @click="addText">Add Text</button>
-    <button @click="addButton">Add Button</button>
-    <button v-if="userImage" @click="compare">Compare</button>
-    <button v-if="compared" @click="nextQuestion">Nächste Frage</button>
-    <!-- <button @click="safeBoard">Safe Board</button> -->
-    <v-stage
-      ref="stage"
-      :config="configKonva"
-      style="background-color: white"
-      @dragstart="handleDragstart"
-      @dragend="handleDragend"
-      @dragmove="handleDragmove"
-      @mousedown="handleStageMouseDown"
-      @touchstart="handleStageMouseDown"
-    >
-      <v-layer ref="layer">
-        <v-transformer ref="transformer" />
-      </v-layer>
-    </v-stage>
-    <div id="comparison__container">
-      <h1 v-if="result">Ergebnis:</h1>
-      <h2 v-if="result">
-        {{ 100 - result.misMatchPercentage }}% Übereinstimmung konnte
-        festgestellt werden.
-      </h2>
-      <div id="container__images"></div>
+    <div class="component">
+      <button @click="addRect">Add Rect</button>
+      <button @click="addText">Add Text</button>
+      <button @click="addButton">Add Button</button>
+      <button v-if="userImage" @click="compare">Compare</button>
+      <v-stage
+        ref="stage"
+        :config="configKonva"
+        style="background-color: white"
+        @dragstart="handleDragstart"
+        @dragend="handleDragend"
+        @dragmove="handleDragmove"
+        @mousedown="handleStageMouseDown"
+        @touchstart="handleStageMouseDown"
+      >
+        <v-layer ref="layer">
+          <v-transformer ref="transformer" />
+        </v-layer>
+      </v-stage>
+    </div>
+    <div class="wrap">
+      <div class="modal js-modal">
+        <div v-if="result" class="modal-image">
+          <svg
+            v-if="100 - result.misMatchPercentage > 75"
+            viewBox="0 0 32 32"
+            style="fill: #48db71"
+          >
+            <path d="M1 14 L5 10 L13 18 L27 4 L31 8 L13 26 z"></path>
+          </svg>
+          <svg
+            v-else-if="
+              100 - result.misMatchPercentage > 25 &&
+              100 - result.misMatchPercentage < 75
+            "
+            viewBox="0 0 32 32"
+            style="fill: #ffff00"
+          >
+            <path d="M1 14 L5 10 L13 18 L27 4 L31 8 L13 26 z"></path>
+          </svg>
+          <svg
+            v-else-if="100 - result.misMatchPercentage < 25"
+            viewBox="0 0 32 32"
+            style="fill: #ff0000"
+          >
+            <path d="M1 14 L5 10 L13 18 L27 4 L31 8 L13 26 z"></path>
+          </svg>
+        </div>
+        <h1 v-if="result">
+          {{ 100 - result.misMatchPercentage }}% Übereinstimmung konnte
+          festgestellt werden.
+        </h1>
+        <div v-else class="lds-ring">
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+        </div>
+        <button v-if="compared" @click="nextQuestion">Nächste Frage</button>
+        <div id="container__images"></div>
+      </div>
     </div>
   </div>
 </template>
@@ -72,6 +106,7 @@ export default defineComponent({
       width: width,
       height: height,
     });
+
     onMounted(() => {
       drawLinesSolution();
     });
@@ -83,6 +118,7 @@ export default defineComponent({
       (newValue) => {
         if (newValue) {
           userImage.value = newValue;
+          result.value = undefined;
         }
       }
     );
@@ -104,22 +140,14 @@ export default defineComponent({
       dragItemId.value = "";
     };
 
-    const safeBoard = () => {
-      const transformerNode = transformer.value.getNode();
-      const stage = transformerNode.getStage() as Stage;
-      // stage.toDataURL({
-      //   pixelRatio: 2,
-      //   callback(img) {
-      //     userImage = img;
-      //   },
-      // });
-    };
-
     const result = ref<resemble.ComparisonResult>();
 
     const compared = ref<boolean>(false);
 
+    const isComparing = ref<boolean>(false);
+
     const compare = () => {
+      isComparing.value = true;
       for (var i = document.images.length; i-- > 0; )
         document!.images[i]!.parentNode!.removeChild(document.images[i]);
 
@@ -171,7 +199,7 @@ export default defineComponent({
 
             resemble(userImage.value)
               .compareTo(compareImage)
-              .ignoreColors()
+              .ignoreLess()
               .onComplete(function (data) {
                 console.log(data);
                 result.value = data;
@@ -180,6 +208,8 @@ export default defineComponent({
           }
         }
       }
+
+      isComparing.value = false;
     };
 
     const nextQuestion = () => {
@@ -254,6 +284,7 @@ export default defineComponent({
       const stage = transformerNode.getStage() as Stage;
       stage.add(gridLayer);
     }
+
     var GUIDELINE_OFFSET = 5;
     // were can we snap our objects?
     function getLineGuideStops(skipShape: any) {
@@ -666,9 +697,9 @@ export default defineComponent({
       userImage,
       handleDragstart,
       handleDragend,
-      safeBoard,
-      compared,
       result,
+      compared,
+      isComparing,
       compare,
       nextQuestion,
       addRect,
@@ -792,5 +823,55 @@ a {
 
 #comparison__container {
   color: white;
+}
+
+.wrap {
+  margin: auto;
+}
+
+.modal {
+  background-color: #fff;
+  padding: 2em 3em;
+  text-align: center;
+  border-radius: 0.5em;
+  display: block;
+}
+.modal-image {
+  width: 40px;
+  height: 40px;
+  margin: 0 auto;
+  border-radius: 50%;
+  /* box-shadow: 0 0 0 2px #48db71; */
+  padding: 11px 10px 2px;
+  margin-bottom: 2em;
+}
+
+h1 {
+  font-size: 1.5em;
+  font-weight: bold;
+  margin-bottom: 0.5em;
+}
+
+p {
+  margin-bottom: 2em;
+  color: #666;
+}
+
+button {
+  font-size: 1.25em;
+  font-weight: bold;
+  background-color: #000;
+  border: none;
+  padding: 0.5em 1em;
+  color: #fff;
+  box-shadow: 0 0 0 2px #000 inset;
+  border-radius: 0.25em;
+  cursor: pointer;
+  transition: background 0.4s ease, color 0.4s ease;
+}
+button:hover {
+  box-shadow: 0 0 0 2px #000 inset;
+  color: #000;
+  background-color: transparent;
 }
 </style>

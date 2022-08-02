@@ -48,10 +48,11 @@ export default defineComponent({
 
     const chooseNewLevel = () => {
       if (store.state.level1.includes(chosenLevel.value)) {
-        console.log("level1")
         store.commit("chooseLevel", store.state.level1[getRandomInt(0, 4)]);
       } else if (store.state.level2.includes(chosenLevel.value)) {
         store.commit("chooseLevel", store.state.level2[getRandomInt(0, 4)]);
+      } else if (store.state.level3.includes(chosenLevel.value)) {
+        store.commit("chooseLevel", store.state.level3[getRandomInt(0, 4)]);
       }
     };
 

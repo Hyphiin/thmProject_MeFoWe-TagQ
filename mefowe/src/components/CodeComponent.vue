@@ -58,24 +58,35 @@ export default defineComponent({
       (newValue) => {
         console.log(template.value);
         if (template.value.length > 0) {
+          // get the iFrame for image insert
           let frame = document.getElementById("theFrame");
+          // create a new html document
           let doc = document.implementation.createHTMLDocument("New Document");
-
+          // regExp to cut the blanks and so on
           const strippedString = newValue.replace(/[\r\n]/gm, "");
 
           const abc = /<body>(.*?)<\/body>/gm;
 
+          // filter for the body of the document
           let found = abc.exec(strippedString);
+
           if (found) {
+            // insert the body into the new document
             doc.body.insertAdjacentHTML("beforeend", found[1]);
+
+            // reformat body to valid html structure
             body.value = process(found[1]);
+
+            // regexp to cut lineBreaks
             const withoutLineBreaks = newValue.replace(/[\r\n]/gm, "");
 
             let cssRegexp = /[^<>]+/gm;
             cssRegexp = /<style>(.*?)<\/style>/gm;
 
+            // filter for the style tag
             let matchStyle = withoutLineBreaks.match(cssRegexp);
 
+            // if found style without declarations, go on
             if (matchStyle) {
               let matching = cssRegexp.exec(matchStyle[0]);
 
@@ -116,25 +127,31 @@ export default defineComponent({
             } else {
               cssRegexp = /<style\s.*?>(.*?)<\/style>/gm;
 
+              // filter for style tag with further declarations
               let matchStyle = withoutLineBreaks.match(cssRegexp);
 
+              // if found style with declarations, go on
               if (matchStyle) {
                 let matching = cssRegexp.exec(matchStyle[0]);
 
                 if (matching) {
+                  // create style tag in document-head
                   let head = doc.head || doc.getElementsByTagName("head")[0];
                   let style = doc.createElement("style");
 
                   head.appendChild(style);
 
+                  // declare the style type
                   style.type = "text/css";
 
+                  // insert the found css into the new style tag
                   style.appendChild(doc.createTextNode(matching[1]));
+
+                  // readjust the formatting for display in code-editor
                   stylePart.value = cssbeautify(matching[1]);
 
                   if (frame && frame instanceof HTMLIFrameElement) {
                     // Copy the new HTML document into the frame
-
                     let destDocument = frame.contentDocument;
                     let srcNode = doc.documentElement;
 
@@ -147,6 +164,7 @@ export default defineComponent({
                       );
                       const screenshotTarget = destDocument.body;
 
+                      // make Screeshot of the canvas aka iFrame
                       html2canvas(screenshotTarget).then((canvas) => {
                         const base64image = canvas.toDataURL("image/png");
                         context.emit("createdImage", base64image);
@@ -155,9 +173,9 @@ export default defineComponent({
                   }
                 }
               } else {
+                // if no style was found, continue without it
                 if (frame && frame instanceof HTMLIFrameElement) {
                   // Copy the new HTML document into the frame
-
                   let destDocument = frame.contentDocument;
                   let srcNode = doc.documentElement;
 
@@ -170,6 +188,7 @@ export default defineComponent({
                     );
                     const screenshotTarget = destDocument.body;
 
+                    // make Screeshot of the canvas aka iFrame
                     html2canvas(screenshotTarget).then((canvas) => {
                       const base64image = canvas.toDataURL("image/png");
                       context.emit("createdImage", base64image);
@@ -232,7 +251,7 @@ export default defineComponent({
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
+<style>
 .code {
   height: 100%;
   margin: 20px;
@@ -255,8 +274,6 @@ a {
 }
 
 #theFrame {
-  /* display: none; */
-
   opacity: 0;
   width: 1800px;
   height: 1000px;
@@ -297,5 +314,9 @@ a {
   100% {
     transform: rotate(360deg);
   }
+}
+
+pre {
+  white-space: pre-wrap;
 }
 </style>
