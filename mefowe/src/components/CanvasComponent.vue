@@ -14,7 +14,7 @@
         @mousedown="handleStageMouseDown"
         @touchstart="handleStageMouseDown"
       >
-        <v-layer>
+        <v-layer ref="background__layer">
           <v-rect
             :config="{
               width: 1800,
@@ -26,6 +26,7 @@
         <v-layer ref="layer">
           <v-transformer ref="transformer" />
         </v-layer>
+        <v-layer ref="component__layer"> </v-layer>
       </v-stage>
     </div>
     <div class="wrap">
@@ -178,12 +179,8 @@ export default defineComponent({
           const transformerNode = transformer.value.getNode();
           const stage = transformerNode.getStage() as Stage;
 
-          console.log(stage.children);
-
           if (stage.children) {
-            stage.children.splice(2, 1);
-
-            console.log(stage);
+            stage.children.splice(3, 1);
 
             let compareImage = "";
             stage.toDataURL({
@@ -231,15 +228,14 @@ export default defineComponent({
         document!.images[i]!.parentNode!.removeChild(document.images[i]);
 
       context.emit("nextQuestion");
-      rectLayer.clear();
-      textLayer.clear();
-      buttonLayer.clear();
+      // rectLayer.clear();
+      // textLayer.clear();
+      // buttonLayer.clear();
       setTimeout(() => {
         drawLinesSolution();
       }, 200);
     };
 
-    var rectLayer = new Layer();
     const addRect = () => {
       const transformerNode = transformer.value.getNode();
       const stage = transformerNode.getStage() as Stage;
@@ -255,8 +251,9 @@ export default defineComponent({
         draggable: true,
       });
       rectList.value.push(newRect);
-      rectLayer.add(newRect);
-      stage.add(rectLayer);
+      if (stage.children) {
+        stage.children[2].add(newRect);
+      }
     };
 
     const stepSize = 50;
@@ -463,7 +460,6 @@ export default defineComponent({
       stage.add(guideLines);
     }
 
-    var textLayer = new Layer();
     const addText = () => {
       const transformerNode = transformer.value.getNode();
       const stage = transformerNode.getStage() as Stage;
@@ -481,11 +477,11 @@ export default defineComponent({
       });
 
       textList.value.push(newText);
-      textLayer.add(newText);
-      stage.add(textLayer);
+      if (stage.children) {
+        stage.children[2].add(newText);
+      }
     };
 
-    var buttonLayer = new Layer();
     const addButton = () => {
       const transformerNode = transformer.value.getNode();
       const stage = transformerNode.getStage() as Stage;
@@ -520,8 +516,9 @@ export default defineComponent({
       );
 
       buttonList.value.push(button);
-      buttonLayer.add(button);
-      stage.add(buttonLayer);
+      if (stage.children) {
+        stage.children[2].add(button);
+      }
     };
 
     const handleTransformEnd = (e: KonvaEventObject<KonvaNodeEvent>) => {
