@@ -37,6 +37,7 @@ export default defineComponent({
     const createdImage = ref<string>("");
 
     const saveImage = (image: string) => {
+      console.log(image);
       createdImage.value = image;
     };
 
@@ -70,6 +71,7 @@ export default defineComponent({
 .home {
   display: flex;
   padding: 22.5px 50px;
+  min-height: 91vh;
 }
 .home__code {
   min-width: 30%;

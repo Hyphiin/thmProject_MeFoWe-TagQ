@@ -14,7 +14,7 @@
         <pre><code>{{stylePart}}</code></pre>
       </div>
     </div>
-    <iframe id="theFrame" src="about:blank" />
+    <iframe v-if="renderIFrame" id="theFrame" src="about:blank" />
   </div>
 </template>
 
@@ -53,10 +53,13 @@ export default defineComponent({
     const body = ref<string>("");
     const stylePart = ref<string>("");
 
+    const renderIFrame = ref<boolean>(true);
+
     watch(
       () => template.value,
       (newValue) => {
         console.log(template.value);
+        renderIFrame.value = true;
         if (template.value.length > 0) {
           // get the iFrame for image insert
           let frame = document.getElementById("theFrame");
@@ -101,11 +104,15 @@ export default defineComponent({
                 style.appendChild(doc.createTextNode(matching[1]));
                 stylePart.value = cssbeautify(matching[1]);
 
+                console.log("Frame => ", frame);
+
                 if (frame && frame instanceof HTMLIFrameElement) {
                   // Copy the new HTML document into the frame
 
                   let destDocument = frame.contentDocument;
                   let srcNode = doc.documentElement;
+
+                  console.log("contentDocument => ", destDocument);
 
                   if (destDocument) {
                     let newNode = destDocument.importNode(srcNode, true);
@@ -120,6 +127,9 @@ export default defineComponent({
                     html2canvas(screenshotTarget).then((canvas) => {
                       const base64image = canvas.toDataURL("image/png");
                       context.emit("createdImage", base64image);
+                      setTimeout(() => {
+                        renderIFrame.value = false;
+                      }, 2000);
                     });
                   }
                 }
@@ -150,10 +160,14 @@ export default defineComponent({
                   // readjust the formatting for display in code-editor
                   stylePart.value = cssbeautify(matching[1]);
 
+                  console.log("Frame => ", frame);
+
                   if (frame && frame instanceof HTMLIFrameElement) {
                     // Copy the new HTML document into the frame
                     let destDocument = frame.contentDocument;
                     let srcNode = doc.documentElement;
+
+                    console.log("contentDocument => ", destDocument);
 
                     if (destDocument) {
                       let newNode = destDocument.importNode(srcNode, true);
@@ -168,16 +182,22 @@ export default defineComponent({
                       html2canvas(screenshotTarget).then((canvas) => {
                         const base64image = canvas.toDataURL("image/png");
                         context.emit("createdImage", base64image);
+                        setTimeout(() => {
+                          renderIFrame.value = false;
+                        }, 2000);
                       });
                     }
                   }
                 }
               } else {
+                console.log("Frame => ", frame);
                 // if no style was found, continue without it
                 if (frame && frame instanceof HTMLIFrameElement) {
                   // Copy the new HTML document into the frame
                   let destDocument = frame.contentDocument;
                   let srcNode = doc.documentElement;
+
+                  console.log("contentDocument => ", destDocument);
 
                   if (destDocument) {
                     let newNode = destDocument.importNode(srcNode, true);
@@ -192,6 +212,9 @@ export default defineComponent({
                     html2canvas(screenshotTarget).then((canvas) => {
                       const base64image = canvas.toDataURL("image/png");
                       context.emit("createdImage", base64image);
+                      setTimeout(() => {
+                        renderIFrame.value = false;
+                      }, 2000);
                     });
                   }
                 }
@@ -245,6 +268,7 @@ export default defineComponent({
       loading,
       body,
       stylePart,
+      renderIFrame,
     };
   },
 });

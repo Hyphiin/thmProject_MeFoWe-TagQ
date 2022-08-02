@@ -1,10 +1,10 @@
 <template>
   <div class="canvas__component">
-    <div class="component">
+    <div v-if="!compared" class="component">
       <button @click="addRect">Add Rect</button>
       <button @click="addText">Add Text</button>
       <button @click="addButton">Add Button</button>
-      <button v-if="userImage" @click="compare">Compare</button>
+      <button v-if="userImage && !compared" @click="compare">Compare</button>
       <v-stage
         ref="stage"
         :config="configKonva"
@@ -116,6 +116,7 @@ export default defineComponent({
     watch(
       () => props.createdImage,
       (newValue) => {
+        console.log("userImage => ", newValue);
         if (newValue) {
           userImage.value = newValue;
           result.value = undefined;
@@ -215,6 +216,7 @@ export default defineComponent({
     const nextQuestion = () => {
       compared.value = false;
       result.value = undefined;
+      userImage.value = undefined;
       for (var i = document.images.length; i-- > 0; )
         document!.images[i]!.parentNode!.removeChild(document.images[i]);
 
@@ -222,6 +224,9 @@ export default defineComponent({
       rectLayer.clear();
       textLayer.clear();
       buttonLayer.clear();
+      setTimeout(() => {
+        drawLinesSolution();
+      }, 200);
     };
 
     var rectLayer = new Layer();
