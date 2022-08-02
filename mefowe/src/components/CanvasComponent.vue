@@ -642,7 +642,7 @@ export default defineComponent({
 
     const handleDragmove = (e: KonvaEventObject<KonvaNodeEvent>) => {
       // clear all previous lines on the screen
-      guideLines.find(".guid-line").forEach((l) => l.destroy());
+      setTimeout(()=> {guideLines.find(".guid-line").forEach((l) => l.destroy());}, 500);
 
       // find possible snapping lines
       var lineGuideStops = getLineGuideStops(e.target);
