@@ -10,6 +10,11 @@ export default createStore({
         "Create a simple html page with 3 h-tags and plain css",
         "Create a simple html page with 1 div-tag and 1 p-tag and plain css",
         "Create a simple html page with 6 div-tags and plain css",
+        // "Create a simple html page with empty body and no style",
+        // "Create a simple html page with empty body and no style",
+        // "Create a simple html page with empty body and no style",
+        // "Create a simple html page with empty body and no style",
+        // "Create a simple html page with empty body and no style",
       ],
       level2: [
         "Create a simple html page with multiple div-tags, p-tags and h-tags and plain css",

@@ -8,13 +8,21 @@
       <v-stage
         ref="stage"
         :config="configKonva"
-        style="background-color: white"
         @dragstart="handleDragstart"
         @dragend="handleDragend"
         @dragmove="handleDragmove"
         @mousedown="handleStageMouseDown"
         @touchstart="handleStageMouseDown"
       >
+        <v-layer>
+          <v-rect
+            :config="{
+              width: 1800,
+              height: 1000,
+              fill: 'white',
+            }"
+          />
+        </v-layer>
         <v-layer ref="layer">
           <v-transformer ref="transformer" />
         </v-layer>
@@ -170,8 +178,10 @@ export default defineComponent({
           const transformerNode = transformer.value.getNode();
           const stage = transformerNode.getStage() as Stage;
 
+          console.log(stage.children);
+
           if (stage.children) {
-            stage.children.splice(1, 1);
+            stage.children.splice(2, 1);
 
             console.log(stage);
 
