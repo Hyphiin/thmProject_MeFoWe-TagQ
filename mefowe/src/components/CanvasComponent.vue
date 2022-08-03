@@ -1,9 +1,6 @@
 <template>
   <div class="canvas__component">
     <div v-if="!compared" class="component">
-      <button @click="addRect">Add Rect</button>
-      <button @click="addText">Add Text</button>
-      <button @click="addButton">Add Button</button>
       <button v-if="userImage && !compared" @click="compare">Compare</button>
       <v-stage
         ref="stage"
@@ -28,6 +25,27 @@
         </v-layer>
         <v-layer ref="component__layer"> </v-layer>
       </v-stage>
+    </div>
+    <div class="drawer" :class="drawerIsActive ? 'active' : ''">
+      <div
+        id="button"
+        :class="drawerIsActive ? 'active' : ''"
+        v-on:click="drawerIsActive = !drawerIsActive"
+      ></div>
+      <div id="container">
+        <div id="cont">
+          <div class="drawer_center">
+            <button @click="addRect">
+              <span class="material-symbols-outlined"> rectangle </span>Add Rect
+            </button>
+
+            <button @click="addText">
+              <span class="material-symbols-outlined"> text_fields </span>Add
+              Text
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
     <div class="wrap">
       <div class="modal js-modal">
@@ -78,7 +96,6 @@
 import { defineComponent, onMounted, ref, watch } from "vue";
 import { Rect } from "konva/lib/shapes/Rect";
 import { Text } from "konva/lib/shapes/Text";
-import { Group } from "konva/lib/Group";
 import { Util } from "konva/lib/Util";
 import { KonvaEventObject } from "konva/lib/Node";
 import { KonvaNodeEvent } from "konva/lib/types";
@@ -102,13 +119,12 @@ export default defineComponent({
     },
   },
   setup(props, context) {
-    const width = 1800;
+    const width = 1300;
     const height = 1000;
 
     const rectList = ref<Rect[]>([]);
     const textList = ref<Text[]>([]);
-    const buttonList = ref<Group[]>([]);
-    const dragItemId = ref<string>();
+    const dragItemId = ref<string>("");
     const selectedShapeId = ref<string>();
     const transformer = ref<any>();
     const configKonva = ref({
@@ -134,15 +150,22 @@ export default defineComponent({
     );
 
     const handleDragstart = (e: DragEvent) => {
-      if (e.target != null && e.target instanceof HTMLElement) {
+      if (e.target != null && e.target instanceof Rect) {
         // save drag element:
-        dragItemId.value = e.target.id;
+        dragItemId.value = e.target.attrs.id;
         // move current element to the top:
-        console.log(e.target);
         const item = rectList.value.find((i) => i.id() === dragItemId.value);
         const index = rectList.value.indexOf(item as Rect);
         rectList.value.splice(index, 1);
         rectList.value.push(item as Rect);
+      } else if (e.target != null && e.target instanceof Text) {
+        // save drag element:
+        dragItemId.value = e.target.attrs.id;
+        // move current element to the top:
+        const item = textList.value.find((i) => i.id() === dragItemId.value);
+        const index = textList.value.indexOf(item as Text);
+        textList.value.splice(index, 1);
+        textList.value.push(item as Text);
       }
     };
     const handleDragend = () => {
@@ -184,7 +207,7 @@ export default defineComponent({
 
             let compareImage = "";
             stage.toDataURL({
-              width: 1800,
+              width: 1300,
               height: 1000,
               callback(img) {
                 compareImage = img;
@@ -244,11 +267,13 @@ export default defineComponent({
         id: Math.round(Math.random() * 10000).toString(),
         x: Math.round(Math.random() * width),
         y: Math.round(Math.random() * height),
-        stroke: Util.getRandomColor(),
-        strokeWidth: 2,
+        fill: Util.getRandomColor(),
         width: 100,
         height: 100,
         draggable: true,
+        stroke: Util.getRandomColor(),
+        strokeWidth: Math.round(Math.random() * 5),
+        cornerRadius: Math.round(Math.random() * 5),
       });
       rectList.value.push(newRect);
       if (stage.children) {
@@ -256,6 +281,125 @@ export default defineComponent({
       }
     };
 
+    const addText = () => {
+      const transformerNode = transformer.value.getNode();
+      const stage = transformerNode.getStage() as Stage;
+
+      var newText = new Text({
+        id: Math.round(Math.random() * 10000).toString(),
+        x: Math.round(Math.random() * width),
+        y: Math.round(Math.random() * height),
+        fill: Util.getRandomColor(),
+        text: "Double Click to edit",
+        fontSize: 30,
+        draggable: true,
+      });
+
+      textList.value.push(newText);
+
+      newText.on("dblclick dbltap", () => {
+        // hide text node and transformer:
+        newText.hide();
+
+        // create textarea over canvas with absolute position
+        // first we need to find position for textarea
+        // how to find it?
+
+        // at first lets find position of text node relative to the stage:
+        var textPosition = newText.absolutePosition();
+
+        // so position of textarea will be the sum of positions above:
+        var areaPosition = {
+          x: stage.container().offsetLeft + textPosition.x,
+          y: stage.container().offsetTop + textPosition.y,
+        };
+
+        // create textarea and style it
+        var textarea = document.createElement("textarea");
+        document.body.appendChild(textarea);
+
+        // apply many styles to match text on canvas as close as possible
+        // remember that text rendering on canvas and on the textarea can be different
+        // and sometimes it is hard to make it 100% the same. But we will try...
+        textarea.value = newText.text();
+        textarea.style.position = "absolute";
+        textarea.style.top = areaPosition.y + "px";
+        textarea.style.left = areaPosition.x + "px";
+        textarea.style.width = newText.width() - newText.padding() * 2 + "px";
+        textarea.style.height =
+          newText.height() - newText.padding() * 2 + 5 + "px";
+        textarea.style.fontSize = newText.fontSize() + "px";
+        textarea.style.border = "none";
+        textarea.style.padding = "0px";
+        textarea.style.margin = "0px";
+        textarea.style.overflow = "hidden";
+        textarea.style.background = "none";
+        textarea.style.outline = "none";
+        textarea.style.resize = "none";
+        textarea.style.lineHeight = newText.lineHeight().toString();
+        textarea.style.fontFamily = newText.fontFamily();
+        textarea.style.transformOrigin = "left top";
+        textarea.style.textAlign = newText.align();
+        textarea.style.color = newText.fill();
+
+        var px = 0;
+        // also we need to slightly move textarea on firefox
+        // because it jumps a bit
+        var isFirefox =
+          navigator.userAgent.toLowerCase().indexOf("firefox") > -1;
+        if (isFirefox) {
+          px += 2 + Math.round(newText.fontSize() / 20);
+        }
+
+        // reset height
+        textarea.style.height = "auto";
+        // after browsers resized it we can set actual value
+        textarea.style.height = textarea.scrollHeight + 3 + "px";
+
+        textarea.focus();
+
+        function removeTextarea() {
+          textarea.parentNode?.removeChild(textarea);
+          window.removeEventListener("click", handleOutsideClick);
+          newText.show();
+        }
+
+        textarea.addEventListener("keydown", function (e) {
+          // hide on enter
+          // but don't hide on shift + enter
+          if (e.keyCode === 13 && !e.shiftKey) {
+            newText.text(textarea.value);
+            removeTextarea();
+          }
+          // on esc do not set value back to node
+          if (e.keyCode === 27) {
+            removeTextarea();
+          }
+        });
+
+        textarea.addEventListener("keydown", function (e) {
+          let scale = newText.getAbsoluteScale().x;
+          textarea.style.height = "auto";
+          textarea.style.height =
+            textarea.scrollHeight + newText.fontSize() + "px";
+        });
+
+        function handleOutsideClick(e: any) {
+          if (e.target !== textarea) {
+            newText.text(textarea.value);
+            removeTextarea();
+          }
+        }
+        setTimeout(() => {
+          window.addEventListener("click", handleOutsideClick);
+        });
+      });
+      if (stage.children) {
+        stage.children[2].add(newText);
+      }
+    };
+
+    //Lines
     const stepSize = 50;
     var gridLayer = new Layer();
     function drawLinesSolution() {
@@ -460,67 +604,7 @@ export default defineComponent({
       stage.add(guideLines);
     }
 
-    const addText = () => {
-      const transformerNode = transformer.value.getNode();
-      const stage = transformerNode.getStage() as Stage;
-
-      var newText = new Text({
-        id: Math.round(Math.random() * 10000).toString(),
-        x: Math.round(Math.random() * width),
-        y: Math.round(Math.random() * height),
-        fill: Util.getRandomColor(),
-        width: 150,
-        height: 100,
-        text: "Text",
-        fontSize: 30,
-        draggable: true,
-      });
-
-      textList.value.push(newText);
-      if (stage.children) {
-        stage.children[2].add(newText);
-      }
-    };
-
-    const addButton = () => {
-      const transformerNode = transformer.value.getNode();
-      const stage = transformerNode.getStage() as Stage;
-
-      var button = new Group({
-        id: Math.round(Math.random() * 10000).toString(),
-        x: Math.round(Math.random() * width),
-        y: Math.round(Math.random() * height),
-        width: 130,
-        height: 25,
-        draggable: true,
-      });
-
-      button.add(
-        new Rect({
-          width: 130,
-          height: 25,
-          fill: "lightblue",
-        })
-      );
-
-      button.add(
-        new Text({
-          text: "Button",
-          fontSize: 18,
-          fontFamily: "Calibri",
-          fill: "#000",
-          width: 130,
-          padding: 5,
-          align: "center",
-        })
-      );
-
-      buttonList.value.push(button);
-      if (stage.children) {
-        stage.children[2].add(button);
-      }
-    };
-
+    //Transform Components
     const handleTransformEnd = (e: KonvaEventObject<KonvaNodeEvent>) => {
       // shape is transformed, let us save new attrs back to the node
       // find element in our state
@@ -539,7 +623,7 @@ export default defineComponent({
         // // change fill
         // shape.fill = Util.getRandomColor();
       } else {
-        const shape = buttonList.value.find(
+        const shape = textList.value.find(
           (r) => r.id() === selectedShapeId.value
         )!.attrs;
         if (shape && !(shape instanceof Layer)) {
@@ -552,21 +636,6 @@ export default defineComponent({
 
           // // change fill
           // shape.fill = Util.getRandomColor();
-        } else {
-          const shape = textList.value.find(
-            (r) => r.id() === selectedShapeId.value
-          )!.attrs;
-          if (shape && !(shape instanceof Layer)) {
-            // update the state
-            shape.x = e.target.x();
-            shape.y = e.target.y();
-            shape.rotation = e.target.rotation();
-            shape.scaleX = e.target.scaleX();
-            shape.scaleY = e.target.scaleY();
-
-            // // change fill
-            // shape.fill = Util.getRandomColor();
-          }
         }
       }
     };
@@ -658,22 +727,18 @@ export default defineComponent({
       }
 
       // find clicked shape by its name
-      const id = e.target.id();
-      const shape = rectList.value.find((r) => r.id() === id);
-
+      let id = e.target.attrs.id;
+      const shape = rectList.value.find((r) => r.attrs.id === id);
       if (shape && !(shape instanceof Layer)) {
+        activeComponent.value = shape as Rect;
+        setActiveAttributes(shape as Rect);
         selectedShapeId.value = id;
       } else {
-        const shape = buttonList.value.find((r) => r.id() === id);
+        const shape = textList.value.find((r) => r.attrs.id === id);
         if (shape && !(shape instanceof Layer)) {
+          activeComponent.value = shape;
+          setActiveAttributes(shape as Text);
           selectedShapeId.value = id;
-        } else {
-          const shape = buttonList.value.find((r) => r.id() === id);
-          if (shape && !(shape instanceof Layer)) {
-            selectedShapeId.value = id;
-          } else {
-            selectedShapeId.value = "";
-          }
         }
       }
       updateTransformer();
@@ -699,10 +764,114 @@ export default defineComponent({
       }
     };
 
+    let drawerIsActive = ref<boolean>(false);
+    let editCompIsActive = ref<boolean>(false);
+    let activeComponent = ref<Rect | Text | null>(null);
+
+    let activeCompBgColor = ref<string>("hello");
+    watch(
+      () => activeCompBgColor.value,
+      (newValue) => {
+        console.log("watch", activeCompBgColor.value);
+        if (activeComponent.value !== null) {
+          const transformerNode = transformer.value.getNode();
+          const stage = transformerNode.getStage() as Stage;
+
+          let id = activeComponent.value.attrs.id;
+          const shape = rectList.value.find((r) => r.attrs.id === id);
+          if (shape && !(shape instanceof Layer)) {
+            shape.attrs.fill = newValue;
+            setActiveAttributes(shape as Rect);
+          }
+          // stage.add(stageLayer);
+        }
+      }
+    );
+
+    let activeCornerRadius = ref<number>(0);
+    watch(
+      () => activeCornerRadius.value,
+      (newValue) => {
+        if (activeComponent.value !== null) {
+          const transformerNode = transformer.value.getNode();
+          const stage = transformerNode.getStage() as Stage;
+
+          let id = activeComponent.value.attrs.id;
+          const shape = rectList.value.find((r) => r.attrs.id === id);
+          if (shape && !(shape instanceof Layer)) {
+            shape.attrs.cornerRadius = parseInt(newValue.toString());
+            setActiveAttributes(shape as Rect);
+          }
+          // stage.add(stageLayer);
+        }
+      }
+    );
+
+    let activeStroke = ref<string>("");
+    watch(
+      () => activeStroke.value,
+      (newValue) => {
+        if (activeComponent.value !== null) {
+          const transformerNode = transformer.value.getNode();
+          const stage = transformerNode.getStage() as Stage;
+          let id = activeComponent.value.attrs.id;
+          const shape = rectList.value.find((r) => r.attrs.id === id);
+          if (shape && !(shape instanceof Layer)) {
+            shape.attrs.stroke = newValue;
+            setActiveAttributes(shape as Rect);
+          }
+          // stage.add(stageLayer);
+        }
+      }
+    );
+
+    let activeStrokeWidth = ref<number>(0);
+    watch(
+      () => activeStrokeWidth.value,
+      (newValue) => {
+        if (activeComponent.value !== null) {
+          const transformerNode = transformer.value.getNode();
+          const stage = transformerNode.getStage() as Stage;
+          let id = activeComponent.value.attrs.id;
+          const shape = rectList.value.find((r) => r.attrs.id === id);
+          if (shape && !(shape instanceof Layer)) {
+            shape.attrs.strokeWidth = parseInt(newValue.toString());
+            setActiveAttributes(shape as Rect);
+          }
+          // stage.add(stageLayer);
+        }
+      }
+    );
+
+    let activeFontSize = ref<number>(0);
+    watch(
+      () => activeFontSize.value,
+      (newValue) => {
+        if (activeComponent.value !== null) {
+          const transformerNode = transformer.value.getNode();
+          const stage = transformerNode.getStage() as Stage;
+          let id = activeComponent.value.attrs.id;
+          const shape = textList.value.find((r) => r.attrs.id === id);
+          if (shape && !(shape instanceof Layer)) {
+            shape.attrs.fontSize = parseInt(newValue.toString());
+            setActiveAttributes(shape as Text);
+          }
+          // stage.add(stageLayer);
+        }
+      }
+    );
+
+    const setActiveAttributes = (activeComp: Rect | Text) => {
+      activeCompBgColor.value = activeComp.attrs.fill;
+      activeCornerRadius.value = activeComp.attrs.cornerRadius;
+      activeStroke.value = activeComp.attrs.stroke;
+      activeStrokeWidth.value = activeComp.attrs.strokeWidth;
+      activeFontSize.value = activeComp.attrs.fontSize;
+    };
+
     return {
       rectList,
       textList,
-      buttonList,
       dragItemId,
       transformer,
       configKonva,
@@ -716,12 +885,19 @@ export default defineComponent({
       nextQuestion,
       addRect,
       addText,
-      addButton,
       handleTransformEnd,
       handleStageMouseDown,
       updateTransformer,
       drawLinesSolution,
       handleDragmove,
+      drawerIsActive,
+      editCompIsActive,
+      activeComponent,
+      activeCompBgColor,
+      activeCornerRadius,
+      activeStroke,
+      activeStrokeWidth,
+      activeFontSize,
     };
   },
 });
@@ -753,75 +929,150 @@ a {
   color: #42b983;
 }
 
-.navigation {
-  position: relative;
-  width: 300px;
-  height: 420px;
-  background-color: #21333c;
-  border-radius: 10px;
-  overflow: hidden;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-  transition: 0.5s;
+.drawer #button {
+  width: 35px;
+  height: 35px;
+  border: #80ba24 12px solid;
+  border-radius: 35px;
+  margin: 0 auto;
+  position: inherit;
+  top: 30%;
+  right: -25px;
+  -webkit-transition: all 1s ease;
+  -moz-transition: all 1s ease;
+  -o-transition: all 1s ease;
+  -ms-transition: all 1s ease;
+  transition: all 1s ease;
+  z-index: 9999;
+  cursor: pointer;
 }
 
-.navigation ul {
-  position: absolute;
+.drawer #button.active {
+  width: 35px;
+  height: 35px;
+  border: #80ba24 12px solid;
+  -webkit-transition: all 1s ease;
+  -moz-transition: all 1s ease;
+  -o-transition: all 1s ease;
+  -ms-transition: all 1s ease;
+  transition: all 1s ease;
+  cursor: pointer;
+}
+
+.drawer {
+  top: 110px;
+  right: -32px;
+  position: fixed;
+  width: 2em;
+  overflow: hidden;
+  margin: 0 auto;
+  border-radius: 6px;
+  -webkit-transition: all 1s ease;
+  -moz-transition: all 1s ease;
+  -o-transition: all 1s ease;
+  -ms-transition: all 1s ease;
+  transition: all 1s ease;
+  z-index: 999;
+}
+
+.drawer.active {
+  -webkit-transition: all 1s ease;
+  -moz-transition: all 1s ease;
+  -o-transition: all 1s ease;
+  -ms-transition: all 1s ease;
+  transition: all 1s ease;
+  width: 13em;
+}
+
+.drawer #container {
+  margin-top: 5px;
+  width: 100%;
+  height: 100%;
+  position: relative;
   top: 0;
   left: 0;
-  width: 100%;
+  background-color: #21333c;
+  color: #21333c;
 }
 
-.navigation ul li {
-  position: relative;
-  list-style: none;
-  width: 100%;
-}
-
-.navigation ul li:hover {
-  background-color: #4a5c66;
-}
-
-.navigation ul li a {
-  position: relative;
-  display: block;
-  width: 100%;
+.drawer #cont {
+  height: auto;
+  margin: 0 auto;
   display: flex;
-  text-decoration: none;
-  color: #42b983;
-  font-weight: 500;
+  flex-wrap: wrap;
 }
 
-.navigation ul li a .icon {
+.drawer #edit-container {
+  margin-top: 5px;
+  width: 100%;
+  height: 50%;
   position: relative;
-  display: block;
-  min-width: 80px;
-  height: 60px;
-  line-height: 60px;
-  text-align: center;
+  top: 0;
+  left: 0;
+  background-color: #21333c;
+  color: #21333c;
 }
 
-.navigation ul li a .icon .fa {
+.drawer_center {
+  width: 500px;
+  text-align: center;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.drawer_center button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-evenly;
+  width: 90px;
+  height: 90px;
+  margin: 10px;
+  padding: 6px 10px;
+  font-weight: bold;
+  border-radius: 3px;
+  background-color: #80ba24;
+  color: white;
+  text-decoration: none;
+  border: 0;
+  cursor: pointer;
+}
+.drawer_center button span {
+  font-size: 32px;
+}
+.drawer_center button:hover {
+  background-color: #6ca512;
+}
+.drawer_center .edit-component-btn {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-evenly;
+  width: 150px;
+  height: 40px;
+  margin: 10px;
+  padding: 6px 10px;
+  font-weight: bold;
+  border-radius: 3px;
+  background-color: #80ba24;
+  color: white;
+  text-decoration: none;
+  border: 0;
+  cursor: pointer;
+}
+.drawer_center .edit-component-btn span {
   font-size: 24px;
 }
 
-.navigation ul li a .title {
-  position: relative;
-  display: block;
-  height: 60px;
-  line-height: 60px;
-  white-space: nowrap;
+.drawer_center .edit-component-btn:hover {
+  background-color: #6ca512;
 }
 
-.toggle {
-  position: absolute;
-  top: calc(50% - 20px);
-  right: -20px;
-  width: 40px;
-  height: 40px;
-  background-color: #4a5c66;
-  cursor: pointer;
-  border: 5px solid;
-  border-radius: 50%;
+.drawer h3 {
+  font-size: 30px;
+  font-weight: 100;
+  margin-top: 70px;
+  margin-left: 40px;
 }
 
 .toggle::before {
@@ -885,5 +1136,14 @@ button:hover {
   box-shadow: 0 0 0 2px #000 inset;
   color: #000;
   background-color: transparent;
+}
+
+.edit-comp_div {
+  font-size: 12px;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-left: 10px;
 }
 </style>
