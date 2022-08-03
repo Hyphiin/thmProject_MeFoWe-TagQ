@@ -21,10 +21,7 @@
 
             <button @click="addText"><span class="material-symbols-outlined">
                 text_fields
-              </span>Add Text</button>
-            <button @click="addButton"><span class="material-symbols-outlined">
-                smart_button
-              </span>Add Button</button>
+              </span>Add Text</button>            
           </div>
         </div>
       </div>
@@ -107,7 +104,6 @@ export default defineComponent({
 
     const rectList = ref<Rect[]>([]);
     const textList = ref<Text[]>([]);
-    const buttonList = ref<Group[]>([]);
     const dragItemId = ref<string>("");
     const selectedShapeId = ref<string>();
     const transformer = ref<any>();
@@ -147,14 +143,6 @@ export default defineComponent({
         const index = textList.value.indexOf(item as Text);
         textList.value.splice(index, 1);
         textList.value.push(item as Text);
-      } else if (e.target != null && e.target instanceof Group) {
-        // save drag element:
-        dragItemId.value = e.target.attrs.id
-        // move current element to the top:
-        const item = buttonList.value.find((i) => i.id() === dragItemId.value);
-        const index = buttonList.value.indexOf(item as Group);
-        buttonList.value.splice(index, 1);
-        buttonList.value.push(item as Group);
       }
     };
     const handleDragend = () => {
@@ -389,45 +377,6 @@ export default defineComponent({
       stage.add(stageLayer);
     };
 
-    const addButton = () => {
-      const transformerNode = transformer.value.getNode();
-      const stage = transformerNode.getStage() as Stage;
-
-      var button = new Group({
-        id: Math.round(Math.random() * 10000).toString(),
-        x: Math.round(Math.random() * width),
-        y: Math.round(Math.random() * height),
-        width: 130,
-        height: 40,
-        draggable: true,
-      });
-
-      button.add(
-        new Rect({
-          width: 150,
-          height: 40,
-          fill: Util.getRandomColor(),
-          cornerRadius: 4
-        })
-      );
-
-      button.add(
-        new Text({
-          text: "Button",
-          fontSize: 24,
-          fontFamily: "Calibri",
-          fill: "#000",
-          width: 150,
-          padding: 10,
-          align: "center",
-        })
-      );
-
-      buttonList.value.push(button);
-      stageLayer.add(button);
-      stage.add(stageLayer);
-    };
-
     //Lines
     const stepSize = 50;
     var gridLayer = new Layer();
@@ -651,10 +600,9 @@ export default defineComponent({
         // // change fill
         // shape.fill = Util.getRandomColor();
       } else {
-        const shape = buttonList.value.find(
+        const shape = textList.value.find(
           (r) => r.id() === selectedShapeId.value
         )!.attrs;
-        console.log("SHPE", shape)
         if (shape && !(shape instanceof Layer)) {
           // update the state
           shape.x = e.target.x();
@@ -665,22 +613,7 @@ export default defineComponent({
 
           // // change fill
           // shape.fill = Util.getRandomColor();
-        } else {
-          const shape = textList.value.find(
-            (r) => r.id() === selectedShapeId.value
-          )!.attrs;
-          if (shape && !(shape instanceof Layer)) {
-            // update the state
-            shape.x = e.target.x();
-            shape.y = e.target.y();
-            shape.rotation = e.target.rotation();
-            shape.scaleX = e.target.scaleX();
-            shape.scaleY = e.target.scaleY();
-
-            // // change fill
-            // shape.fill = Util.getRandomColor();
-          }
-        }
+        }        
       }
     };
 
@@ -783,17 +716,8 @@ export default defineComponent({
           activeComponent.value = shape
           setActiveAttributes(shape as Text)
           selectedShapeId.value = id;
-        } else {
-          id = e.target.parent?.attrs.id
-          const shape = buttonList.value.find((r) => r.id() === id);
-          if (shape && !(shape instanceof Layer)) {
-            activeComponent.value = shape
-            setActiveAttributes(shape as Group)
-            selectedShapeId.value = id;
-          } else {
-            selectedShapeId.value = "";
-          }
-        }
+        } 
+        
       }
       updateTransformer();
     };
@@ -820,7 +744,7 @@ export default defineComponent({
 
     let drawerIsActive = ref<boolean>(false)
     let editCompIsActive = ref<boolean>(false)
-    let activeComponent = ref<Rect | Text | Group | null>(null)
+    let activeComponent = ref<Rect | Text | null>(null)
 
 
     let activeCompBgColor = ref<string>("hello")
@@ -836,19 +760,6 @@ export default defineComponent({
         if (shape && !(shape instanceof Layer)) {
           shape.attrs.fill = newValue
           setActiveAttributes(shape as Rect)
-        } else {
-          const shape = textList.value.find((r) => r.attrs.id === id);
-          if (shape && !(shape instanceof Layer)) {
-            shape.attrs.fill = newValue
-            setActiveAttributes(shape as Text)
-          } else {
-            id = activeComponent.value._id
-            const shape = buttonList.value.find((r) => r._id === id);
-            if (shape && !(shape instanceof Layer) && shape.children !== undefined) {
-              shape.children[0].attrs.fill = newValue
-              setActiveAttributes(shape as Group)              
-            }
-          }
         } 
         stage.add(stageLayer);   
       }     
@@ -866,16 +777,6 @@ export default defineComponent({
           if (shape && !(shape instanceof Layer)) {
             shape.attrs.cornerRadius = parseInt(newValue.toString());
             setActiveAttributes(shape as Rect)
-          } else {           
-            id = activeComponent.value._id
-            const shape = buttonList.value.find((r) => r._id === id);
-            if (shape && !(shape instanceof Layer) && shape.children !== undefined) {
-              console.log("activeCornerRadius",shape.children[0])
-              if (shape.children[0].attrs.cornerRadius !== undefined) {
-                shape.children[0].attrs.cornerRadius = parseInt(newValue.toString());
-                setActiveAttributes(shape as Group)
-              }
-            }
           }
           stage.add(stageLayer);
         }
@@ -892,14 +793,6 @@ export default defineComponent({
           if (shape && !(shape instanceof Layer)) {
             shape.attrs.stroke = newValue
             setActiveAttributes(shape as Rect)
-          } else {
-            id = activeComponent.value._id
-            const shape = buttonList.value.find((r) => r._id === id);
-            if (shape && !(shape instanceof Layer) && shape.children !== undefined) {
-              console.log("activeStroke",shape.children[0])
-              shape.children[0].attrs.stroke = newValue
-              setActiveAttributes(shape as Group)
-            }
           }
           stage.add(stageLayer);
         }
@@ -916,19 +809,7 @@ export default defineComponent({
           if (shape && !(shape instanceof Layer)) {
             shape.attrs.strokeWidth = parseInt(newValue.toString());
             setActiveAttributes(shape as Rect)
-          } else {
-            id = activeComponent.value._id
-            const shape = buttonList.value.find((r) => r._id === id);
-            if (shape && !(shape instanceof Layer) && shape.children !== undefined) {
-              console.log("activeStrokeWidth",shape.children[0])
-              console.log("__________", shape.children[0].attrs.strokeWidth)
-              if (newValue !== undefined){
-                shape.children[0].attrs.strokeWidth = parseInt(newValue.toString());
-                console.log("------------",shape.children[0].attrs.strokeWidth)
-                setActiveAttributes(shape as Group)
-              }            
-            }
-          }
+          }           
           stage.add(stageLayer);
         }
     });
@@ -949,25 +830,17 @@ export default defineComponent({
         }
     });
 
-    const setActiveAttributes = (activeComp: Rect | Text | Group) => {
+    const setActiveAttributes = (activeComp: Rect | Text) => {
       activeCompBgColor.value = activeComp.attrs.fill     
       activeCornerRadius.value = activeComp.attrs.cornerRadius
       activeStroke.value = activeComp.attrs.stroke
       activeStrokeWidth.value = activeComp.attrs.strokeWidth
       activeFontSize.value = activeComp.attrs.fontSize
-      if(activeComp instanceof Group && activeComp.children !== undefined){
-        activeCompBgColor.value = activeComp.children[0].attrs.fill
-        activeCornerRadius.value = activeComp.children[0].attrs.cornerRadius
-        activeStroke.value = activeComp.children[0].attrs.stroke
-        activeStrokeWidth.value = activeComp.children[0].attrs.strokeWidth
-        activeFontSize.value = activeComp.children[1].attrs.fontSize
-      }
     }
 
     return {
       rectList,
       textList,
-      buttonList,
       dragItemId,
       transformer,
       configKonva,
@@ -981,7 +854,6 @@ export default defineComponent({
       nextQuestion,
       addRect,
       addText,
-      addButton,
       handleTransformEnd,
       handleStageMouseDown,
       updateTransformer,
