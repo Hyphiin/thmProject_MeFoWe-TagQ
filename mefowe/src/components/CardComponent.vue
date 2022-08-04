@@ -3,9 +3,7 @@
     <div class="card">
       <div class="face face1">
         <div class="content">
-          <img
-            src="https://github.com/Jhonierpc/WebDevelopment/blob/master/CSS%20Card%20Hover%20Effects/img/design_128.png?raw=true"
-          />
+          <span class="material-symbols-outlined"> child_care </span>
           <h3>Level 1</h3>
         </div>
       </div>
@@ -24,9 +22,7 @@
     <div class="card">
       <div class="face face1">
         <div class="content">
-          <img
-            src="https://github.com/Jhonierpc/WebDevelopment/blob/master/CSS%20Card%20Hover%20Effects/img/code_128.png?raw=true"
-          />
+          <span class="material-symbols-outlined"> terminal </span>
           <h3>Level 2</h3>
         </div>
       </div>
@@ -46,9 +42,7 @@
     <div class="card">
       <div class="face face1">
         <div class="content">
-          <img
-            src="https://github.com/Jhonierpc/WebDevelopment/blob/master/CSS%20Card%20Hover%20Effects/img/launch_128.png?raw=true"
-          />
+          <span class="material-symbols-outlined"> rocket_launch </span>
           <h3>Level 3</h3>
         </div>
       </div>
