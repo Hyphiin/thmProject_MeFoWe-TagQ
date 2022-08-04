@@ -44,10 +44,10 @@ export default defineComponent({
 
     onMounted(async () => {
       loading.value = true;
-      await generateTemplate(props.chosenLayout).then((result) => {
-        template.value = result;
-        loading.value = false;
-      });
+      // await generateTemplate(props.chosenLayout).then((result) => {
+      //   template.value = result;
+      //   loading.value = false;
+      // });
     });
 
     const body = ref<string>("");
@@ -229,10 +229,10 @@ export default defineComponent({
       () => store.state.chosenOption,
       async (newValue) => {
         loading.value = true;
-        await generateTemplate(newValue).then((result) => {
-          template.value = result;
-          loading.value = false;
-        });
+        // await generateTemplate(newValue).then((result) => {
+        //   template.value = result;
+        //   loading.value = false;
+        // });
       }
     );
 
