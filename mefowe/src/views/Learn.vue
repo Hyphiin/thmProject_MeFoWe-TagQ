@@ -6,6 +6,11 @@
       <div class="container">
         <div class="card">
           <div class="headerhtml"> <h2>HTML</h2></div>
+          <div class="portion">
+              <div class="name taller">Name</div>
+              <div class="markup taller">Beispiel Tags</div>
+              <div class="elementText taller">Beschreibung</div>
+            </div>
           <div v-for="(item, index) in descriptionHTML" :key="index">
             <div class="portion">
               <div class="name">{{ item.name }}</div>
@@ -22,6 +27,11 @@
         <div class="spacer"></div>
         <div class="card">
           <div class="headerhtml"><h2>CSS</h2></div>
+          <div class="portion">
+              <div class="name taller">Name</div>
+              <div class="markup taller">Werte</div>
+              <div class="elementText taller">Beschreibung</div>
+            </div>
           <div v-for="(item, index) in descriptionCSS" :key="index">
             <div class="portion">
               <div class="name">{{ item.name }}</div>
@@ -271,6 +281,18 @@ export default defineComponent({
       },
       {
         type: "CSS",
+        name: "flex-direction",
+        style: "row, row-reverse, column, column-reverse, initial, inherit",
+        text: "Hiermit wird die Ausrichtung der flexiblen Elemente angegeben",
+      },
+      {
+        type: "CSS",
+        name: "align-items",
+        style: "stretch, center, flex-start, flex-end, baseline, initial, inherit",
+        text: "Setzt die Ausrichtung für Elemnte innerhalb des flexiblen Containers fest",
+      },
+      {
+        type: "CSS",
         name: "width",
         style: "px, em, %, vw",
         text: "Die Breite des Elements",
@@ -433,6 +455,11 @@ export default defineComponent({
   flex-basis: 500px;
   flex-grow: 0;
   text-align: start;
+  margin-left: 20px;
+}
+
+.taller{
+  font-size: 24px;
 }
 
 .red {
