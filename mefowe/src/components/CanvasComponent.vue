@@ -583,9 +583,6 @@ export default defineComponent({
             x: 0,
             y: lg.lineGuide,
           });
-          if (stage.children) {
-        stage.children[2].add(line);
-      }
         } else if (lg.orientation === "V") {
           var line2 = new Line({
             points: [0, -6000, 0, 6000],
@@ -599,13 +596,10 @@ export default defineComponent({
             x: lg.lineGuide,
             y: 0,
           });
-          if (stage.children) {
-        stage.children[2].add(line2);
-      }
         }
       });
       
-      //stage.add(guideLines);
+      stage.add(guideLines);
       // if (stage.children) {
       //   stage.children[3].add(guideLines);
       // }
@@ -650,7 +644,7 @@ export default defineComponent({
 
     const handleDragmove = (e: KonvaEventObject<KonvaNodeEvent>) => {
       // clear all previous lines on the screen
-      //setTimeout(()=> {guideLines.find(".guid-line").forEach((l) => l.destroy());}, 500);
+      setTimeout(()=> {guideLines.find(".guid-line").forEach((l) => l.destroy());}, 500);
 
       // find possible snapping lines
       var lineGuideStops = getLineGuideStops(e.target);
