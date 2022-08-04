@@ -14,6 +14,16 @@
             </div>
           </div>
         </div>
+        <div class="spacer"></div>
+        <div class="card">
+          <div v-for="(item, index) in descriptionCSS" :key="index">
+            <div class="portion">
+              <div class="name">{{ item.name }} </div>
+              <div class="markup">{{ item.style }}</div>
+              <div class="elementText">{{ item.text }} </div>
+            </div>
+          </div>
+        </div>
 
       </div>
     </div>
@@ -66,9 +76,35 @@ export default defineComponent({
       { type: "HTMl", name: 'video', tag: "", text: "bettet Videos ein, mehrere Quellen per src defenierbar" },
     ])
 
+    const descriptionCSS = ref([
+      { type: "CSS", name: 'color', style: "", text: "Die Farbe des Elements wird dort angegeben" },
+      { type: "CSS", name: 'background-color', style: "", text: "Die Hintergrundfarbe des Elements " },
+      { type: "CSS", name: 'background-image', style: "", text: "Setzt ein Bild als Hintergrund" },
+      { type: "CSS", name: 'display', style: "", text: "Legt das Verhalten des Inhalts fest, block, inline, flex, none" },
+      { type: "CSS", name: 'width', style: "", text: "Die Breite des Elements" },
+      { type: "CSS", name: 'height', style: "", text: "Die Höhe des Elements" },
+      { type: "CSS", name: 'min-width', style: "", text: "die minimale breite des Elements, die nicht unterschritten wird" },
+      { type: "CSS", name: 'min-height', style: "", text: "die minimale höhe des Elements, die nicht unterschritten wird" },
+      { type: "CSS", name: 'max-width', style: "", text: "die maximale breite des Elements, die nicht überschritten wird" },
+      { type: "CSS", name: 'min-width', style: "", text: "die maximale höhe des Elements, die nicht überschritten wird" },
+      { type: "CSS", name: 'margin', style: "", text: "Abstand zwischen border und anderen Elementen" },
+      { type: "CSS", name: 'padding', style: "", text: "Abstand zwischen border und Inhalt" },
+      { type: "CSS", name: 'border', style: "", text: "Border-Eigenschaften" },
+      { type: "CSS", name: 'border-width', style: "", text: "Die Breite der Border" },
+      { type: "CSS", name: 'border-style', style: "", text: "Das Styling der Border, none, solid, dotted ..." },
+      { type: "CSS", name: 'border-radius', style: "", text: "Die Rundung der Border-Ecken" },
+      { type: "CSS", name: 'font', style: "", text: "Eigenschaften der Schriftart" },
+      { type: "CSS", name: 'font-family', style: "", text: "Definiert die Schriftart/familie" },
+      { type: "CSS", name: 'font-style', style: "", text: "Gibt an ob es normal oder z.B. italic ist" },
+      { type: "CSS", name: 'font-weight', style: "", text: "Gibt die dicke der Schrift an" },
+      { type: "CSS", name: 'position', style: "", text: "Gibt die Position des Elements an, static, relative, absolute, fixed..." },
+      { type: "CSS", name: 'z-index', style: "", text: "Gibt die Höhe der Elemente an, welchen zwei Elemente sich überlappen" },
+      ])
+
 
     return {
-      descriptionHTML
+      descriptionHTML,
+      descriptionCSS,
     };
   },
 });
@@ -77,7 +113,7 @@ export default defineComponent({
 <style scoped>
 .learn {
   color: white;
-  height: 100vh;
+
 }
 
 .wrapper {
@@ -99,6 +135,9 @@ export default defineComponent({
   align-items: center;
 }
 
+.container .spacer{
+  height: 100px;
+}
 .container .card .portion {
   display: flex;
   min-height: 100px;
