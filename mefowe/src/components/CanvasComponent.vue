@@ -943,6 +943,7 @@ export default defineComponent({
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  margin: 20px;
 }
 .canvas {
   height: 100%;

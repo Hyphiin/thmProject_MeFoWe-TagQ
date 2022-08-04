@@ -268,10 +268,16 @@ export default defineComponent({
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style>
 .code {
-  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 80%;
   margin: 20px;
   background-color: #21333c;
   color: white;
+  border-radius: 0.5em;
+  padding: 5px;
 }
 h3 {
   margin: 40px 0 0;
