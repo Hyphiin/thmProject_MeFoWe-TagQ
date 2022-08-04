@@ -104,6 +104,7 @@ import { Stage } from "konva/lib/Stage";
 import { Layer } from "konva/lib/Layer";
 import resemble from "resemblejs";
 import { Line } from "konva/lib/shapes/Line";
+import { Group } from "konva/lib/Group";
 //import DrawerComponent from "@/components/DrawerComponent.vue"; // @ is an alias to /src
 
 export default defineComponent({
@@ -565,7 +566,7 @@ export default defineComponent({
       return guides;
     }
 
-    var guideLines = new Layer();
+    var guideLines = new Group();
     function drawGuides(guides: any) {
       const transformerNode = transformer.value.getNode();
       const stage = transformerNode.getStage() as Stage;
@@ -599,10 +600,10 @@ export default defineComponent({
         }
       });
       
-      stage.add(guideLines);
-      // if (stage.children) {
-      //   stage.children[3].add(guideLines);
-      // }
+      //stage.add(guideLines);
+      if (stage.children) {
+        stage.children[3].add(guideLines);
+      }
       
     }
 
