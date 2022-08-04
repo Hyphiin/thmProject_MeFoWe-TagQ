@@ -1,7 +1,12 @@
 <template>
   <div id="nav">
     <div class="nav__left">
-      <img src="../public/MeFoWeLogoWhite.png" alt="HTML/CSS Quiz Logo" width="70" height="35">
+      <img
+        src="../public/MeFoWeLogoWhite.png"
+        alt="HTML/CSS Quiz Logo"
+        width="70"
+        height="35"
+      />
       <div class="nav__title">HTML/CSS QUIZ</div>
     </div>
     <div class="nav__buttons">
@@ -47,7 +52,7 @@ body {
   align-items: center;
 }
 
-.nav__left{
+.nav__left {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -61,22 +66,21 @@ body {
   background-color: #4a5c66;
   color: white;
   text-decoration: none;
- 
 }
 .nav__title {
   align-self: center;
   margin-left: 25px;
-  
+
   font-weight: bold;
   font-size: 24px;
 }
 .nav__buttons {
   display: flex;
-  justify-content: space-between; 
+  justify-content: space-between;
   font-weight: 500;
   font-size: 18px;
 }
-.nav__buttons #button{
+.nav__buttons #button {
   margin-right: 25px;
   width: 100px;
   height: 25px;
@@ -153,12 +157,11 @@ body {
   width: 150px;
   height: auto;
   margin: 0 auto;
-
 }
 .footer_center {
   width: 500px;
   float: left;
-  text-align: center; 
+  text-align: center;
 }
 .footer h3 {
   font-size: 30px;

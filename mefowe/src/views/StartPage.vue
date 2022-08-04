@@ -71,7 +71,7 @@ export default defineComponent({
 
   height: 100vh;
 }
-h1{
+h1 {
   margin-bottom: 50px;
 }
 </style>

@@ -1,14 +1,23 @@
 <template>
   <div class="canvas__component">
     <div v-if="!compared" class="component">
-      <v-stage ref="stage" :config="configKonva" @dragstart="handleDragstart" @dragend="handleDragend"
-        @dragmove="handleDragmove" @mousedown="handleStageMouseDown" @touchstart="handleStageMouseDown">
+      <v-stage
+        ref="stage"
+        :config="configKonva"
+        @dragstart="handleDragstart"
+        @dragend="handleDragend"
+        @dragmove="handleDragmove"
+        @mousedown="handleStageMouseDown"
+        @touchstart="handleStageMouseDown"
+      >
         <v-layer ref="background__layer">
-          <v-rect :config="{
-            width: 1800,
-            height: 1000,
-            fill: 'white',
-          }" />
+          <v-rect
+            :config="{
+              width: 1800,
+              height: 1000,
+              fill: 'white',
+            }"
+          />
         </v-layer>
         <v-layer ref="layer">
           <v-transformer ref="transformer" />
@@ -17,13 +26,20 @@
       </v-stage>
     </div>
     <nav class="top-nav">
-      <div class="menu-wrapper" :class="[drawerIsActive ? 'is-opened' : '', activeComponent !== null ? 'is-editBtn' : '', editCompIsActive ? 'is-edit'
-      : '']">
+      <div
+        class="menu-wrapper"
+        :class="[
+          drawerIsActive ? 'is-opened' : '',
+          activeComponent !== null ? 'is-editBtn' : '',
+          editCompIsActive ? 'is-edit' : '',
+        ]"
+      >
         <div id=" container">
           <div id="cont">
             <div class="drawer_center">
               <button id="component-btn" @click="addRect">
-                <span class="material-symbols-outlined"> rectangle </span>Add Rect
+                <span class="material-symbols-outlined"> rectangle </span>Add
+                Rect
               </button>
 
               <button id="component-btn" @click="addText">
@@ -36,7 +52,10 @@
         <div v-if="activeComponent !== null" id="edit-container">
           <div id="cont">
             <div class="drawer_edit">
-              <button class="edit-component-btn" @click="editCompIsActive = !editCompIsActive">
+              <button
+                class="edit-component-btn"
+                @click="editCompIsActive = !editCompIsActive"
+              >
                 <span class="material-symbols-outlined"> settings </span>Edit
                 Component
               </button>
@@ -45,26 +64,36 @@
                   Background-Color:
                   <input class="sections__input" v-model="activeCompBgColor" />
                 </div>
-                <div class="edit-comp__sections" v-if="activeComponent.className !== 'Text'">
+                <div
+                  class="edit-comp__sections"
+                  v-if="activeComponent.className !== 'Text'"
+                >
                   Border:
                   <input class="sections__input" v-model="activeStroke" />
                 </div>
-                <div class="edit-comp__sections" v-if="activeComponent.className !== 'Text'">
+                <div
+                  class="edit-comp__sections"
+                  v-if="activeComponent.className !== 'Text'"
+                >
                   BorderWidth:
                   <input class="sections__input" v-model="activeStrokeWidth" />
                 </div>
-                <div class="edit-comp__sections" v-if="activeComponent.className !== 'Text'">
+                <div
+                  class="edit-comp__sections"
+                  v-if="activeComponent.className !== 'Text'"
+                >
                   Border-Radius:
                   <input class="sections__input" v-model="activeCornerRadius" />
                 </div>
-                <div class="edit-comp__sections" v-if="activeComponent.className === 'Text'">
+                <div
+                  class="edit-comp__sections"
+                  v-if="activeComponent.className === 'Text'"
+                >
                   Font-Size:
                   <input class="sections__input" v-model="activeFontSize" />
                 </div>
                 <button id="delete-btn" @click="deleteComp">
-                  <span class="material-symbols-outlined">
-                    delete
-                  </span>
+                  <span class="material-symbols-outlined"> delete </span>
                 </button>
               </div>
             </div>
@@ -72,27 +101,50 @@
         </div>
       </div>
       <div class="fixed-menu">
-        <img src="../../public/MeFoWeLogoWhite.png" alt="HTML/CSS Quiz Logo" width="40" height="20">
-        <button class="menu-open" aria-label="open menu" @click="drawerIsActive = !drawerIsActive"><span
-            class="material-symbols-outlined">
-            {{ drawerIsActive ? "keyboard_double_arrow_right" : "keyboard_double_arrow_left"}}
-          </span></button>
+        <img
+          src="../../public/MeFoWeLogoWhite.png"
+          alt="HTML/CSS Quiz Logo"
+          width="40"
+          height="20"
+        />
+        <button
+          class="menu-open"
+          aria-label="open menu"
+          @click="drawerIsActive = !drawerIsActive"
+        >
+          <span class="material-symbols-outlined">
+            {{
+              drawerIsActive
+                ? "keyboard_double_arrow_right"
+                : "keyboard_double_arrow_left"
+            }}
+          </span>
+        </button>
       </div>
     </nav>
     <div v-if="userImage" class="wrap">
       <div class="modal js-modal">
         <button v-if="!compared" @click="compare">Compare</button>
         <div v-if="result" class="modal-image">
-          <span v-if="100 - result.misMatchPercentage > 95" class="material-symbols-outlined">
+          <span
+            v-if="100 - result.misMatchPercentage > 95"
+            class="material-symbols-outlined"
+          >
             star
           </span>
-          <span v-else-if="
-            100 - result.misMatchPercentage > 85 &&
-            100 - result.misMatchPercentage < 95
-          " class="material-symbols-outlined">
+          <span
+            v-else-if="
+              100 - result.misMatchPercentage > 85 &&
+              100 - result.misMatchPercentage < 95
+            "
+            class="material-symbols-outlined"
+          >
             done
           </span>
-          <span v-else-if="100 - result.misMatchPercentage < 85" class="material-symbols-outlined">
+          <span
+            v-else-if="100 - result.misMatchPercentage < 85"
+            class="material-symbols-outlined"
+          >
             close
           </span>
         </div>
@@ -610,12 +662,11 @@ export default defineComponent({
           });
         }
       });
-      
+
       //stage.add(guideLines);
       if (stage.children) {
         stage.children[3].add(guideLines);
       }
-      
     }
 
     //Transform Components
@@ -656,7 +707,9 @@ export default defineComponent({
 
     const handleDragmove = (e: KonvaEventObject<KonvaNodeEvent>) => {
       // clear all previous lines on the screen
-      setTimeout(()=> {guideLines.find(".guid-line").forEach((l) => l.destroy());}, 500);
+      setTimeout(() => {
+        guideLines.find(".guid-line").forEach((l) => l.destroy());
+      }, 500);
 
       // find possible snapping lines
       var lineGuideStops = getLineGuideStops(e.target);
@@ -786,7 +839,7 @@ export default defineComponent({
       () => activeComponent.value,
       () => {
         if (activeComponent.value !== null) {
-          editCompIsActive.value = false       
+          editCompIsActive.value = false;
         }
       }
     );
@@ -806,15 +859,15 @@ export default defineComponent({
             setActiveAttributes(shape as Rect);
           } else {
             const shape = textList.value.find((r) => r.attrs.id === id);
-            if (shape && !(shape instanceof Layer)) {       
+            if (shape && !(shape instanceof Layer)) {
               shape.attrs.fill = newValue;
               setActiveAttributes(shape as Text);
             }
-          }            
-          if (stage.children){
-            stage.add(new Layer)
-            stage.children.pop()
-          }       
+          }
+          if (stage.children) {
+            stage.add(new Layer());
+            stage.children.pop();
+          }
         }
       }
     );
@@ -834,9 +887,9 @@ export default defineComponent({
             setActiveAttributes(shape as Rect);
           }
           if (stage.children) {
-            stage.add(new Layer)
-            stage.children.pop()
-          }     
+            stage.add(new Layer());
+            stage.children.pop();
+          }
         }
       }
     );
@@ -855,9 +908,9 @@ export default defineComponent({
             setActiveAttributes(shape as Rect);
           }
           if (stage.children) {
-            stage.add(new Layer)
-            stage.children.pop()
-          }     
+            stage.add(new Layer());
+            stage.children.pop();
+          }
         }
       }
     );
@@ -876,9 +929,9 @@ export default defineComponent({
             setActiveAttributes(shape as Rect);
           }
           if (stage.children) {
-            stage.add(new Layer)
-            stage.children.pop()
-          }     
+            stage.add(new Layer());
+            stage.children.pop();
+          }
         }
       }
     );
@@ -897,9 +950,9 @@ export default defineComponent({
             setActiveAttributes(shape as Text);
           }
           if (stage.children) {
-            stage.add(new Layer)
-            stage.children.pop()
-          }     
+            stage.add(new Layer());
+            stage.children.pop();
+          }
         }
       }
     );
@@ -912,26 +965,30 @@ export default defineComponent({
       activeFontSize.value = activeComp.attrs.fontSize;
     };
 
-    const deleteComp = () => {     
+    const deleteComp = () => {
       const transformerNode = transformer.value.getNode();
       const stage = transformerNode.getStage() as Stage;
       if (stage.children && stage.children[2].children) {
         stage.children[2].children.forEach((component, idx) => {
           if (activeComponent.value !== null) {
-            if (component.attrs.id === activeComponent.value.attrs.id && stage.children && stage.children[2].children){
-              stage.children[2].children?.splice(idx,1)
+            if (
+              component.attrs.id === activeComponent.value.attrs.id &&
+              stage.children &&
+              stage.children[2].children
+            ) {
+              stage.children[2].children?.splice(idx, 1);
             }
           }
-        })        
-      } 
+        });
+      }
       if (stage.children) {
-        stage.add(new Layer)
-        stage.children.pop()
-      } 
-      activeComponent.value = null
+        stage.add(new Layer());
+        stage.children.pop();
+      }
+      activeComponent.value = null;
       transformer.value.getNode().nodes([]);
-    }
- 
+    };
+
     return {
       rectList,
       textList,
@@ -961,7 +1018,7 @@ export default defineComponent({
       activeStroke,
       activeStrokeWidth,
       activeFontSize,
-      deleteComp
+      deleteComp,
     };
   },
 });
@@ -969,14 +1026,6 @@ export default defineComponent({
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-
-
-
-
-
-
-
-
 .canvas__component {
   display: flex;
   flex-direction: column;
@@ -1008,7 +1057,6 @@ a {
   color: #42b983;
 }
 
-
 /* .menu-wrapper
 –––––––––––––––––––––––––––––––––––––––––––––––––– */
 .top-nav .menu-wrapper {
@@ -1018,7 +1066,7 @@ a {
   height: 250px;
   width: 200px;
   transform: translateX(200px);
-  transition: transform .7s;
+  transition: transform 0.7s;
   background: #21333c;
   border-radius: 4px;
   box-shadow: 2px 2px 10px rgb(100, 100, 100);
@@ -1040,12 +1088,12 @@ a {
 
 .top-nav .menu-wrapper .menu {
   opacity: 0;
-  transition: opacity .4s;
+  transition: opacity 0.4s;
 }
 
 .top-nav .menu-wrapper.is-opened .menu {
   opacity: 1;
-  transition-delay: .6s;
+  transition-delay: 0.6s;
 }
 
 .top-nav .menu-wrapper .menu a {
@@ -1063,13 +1111,13 @@ a {
   font-size: 1.6rem;
 }
 
-#container{  
+#container {
   display: flex;
   flex-wrap: wrap;
   flex-direction: column;
 }
 
-#component-btn{
+#component-btn {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1088,7 +1136,7 @@ a {
   cursor: pointer;
   border: 2px solid #80ba24;
 }
-  
+
 #component-btn span {
   font-size: 32px;
 }
@@ -1174,13 +1222,10 @@ a {
 
 .sections__input {
   width: 141px;
-
 }
 .sections__input:focus-visible {
   border: 0;
-
 }
-
 
 /* .fixed menu
 –––––––––––––––––––––––––––––––––––––––––––––––––– */

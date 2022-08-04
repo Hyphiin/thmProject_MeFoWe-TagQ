@@ -41,7 +41,12 @@ export default defineComponent({
   components: {},
   setup() {
     const descriptionHTML = ref([
-      { type: "HTMl", name: "a", tag: "<a href='link'>Text</a>", text: "Definiert einen Hyperlink" },
+      {
+        type: "HTMl",
+        name: "a",
+        tag: "<a href='link'>Text</a>",
+        text: "Definiert einen Hyperlink",
+      },
       {
         type: "HTMl",
         name: "body",
