@@ -5,10 +5,10 @@
         @dragmove="handleDragmove" @mousedown="handleStageMouseDown" @touchstart="handleStageMouseDown">
         <v-layer ref="background__layer">
           <v-rect :config="{
-              width: 1800,
-              height: 1000,
-              fill: 'white',
-            }" />
+            width: 1800,
+            height: 1000,
+            fill: 'white',
+          }" />
         </v-layer>
         <v-layer ref="layer">
           <v-transformer ref="transformer" />
@@ -16,55 +16,69 @@
         <v-layer ref="component__layer"> </v-layer>
       </v-stage>
     </div>
-    <div class="drawer" :class="drawerIsActive ? 'active' : ''">
-      <div id="button" :class="drawerIsActive ? 'active' : ''" v-on:click="drawerIsActive = !drawerIsActive"></div>
-      <div id="container">
-        <div id="cont">
-          <div class="drawer_center">
-            <button @click="addRect">
-              <span class="material-symbols-outlined"> rectangle </span>Add Rect
-            </button>
+    <nav class="top-nav">
+      <div class="menu-wrapper" :class="[drawerIsActive ? 'is-opened' : '', activeComponent !== null ? 'is-editBtn' : '', editCompIsActive ? 'is-edit'
+      : '']">
+        <div id=" container">
+          <div id="cont">
+            <div class="drawer_center">
+              <button id="component-btn" @click="addRect">
+                <span class="material-symbols-outlined"> rectangle </span>Add Rect
+              </button>
 
-            <button @click="addText">
-              <span class="material-symbols-outlined"> text_fields </span>Add
-              Text
-            </button>
+              <button id="component-btn" @click="addText">
+                <span class="material-symbols-outlined"> text_fields </span>Add
+                Text
+              </button>
+            </div>
           </div>
         </div>
-      </div>
-      <div v-if="activeComponent !== null" id="edit-container">
-        <div id="cont">
-          <div class="drawer_edit">
-            <button class="edit-component-btn" @click="editCompIsActive = !editCompIsActive">
-              <span class="material-symbols-outlined"> settings </span>Edit
-              Component
-            </button>
-            <div class="edit-comp_div" v-if="editCompIsActive">
-              <div class="edit-comp__sections">
-                Background-Color:
-                <input class="sections__input" v-model="activeCompBgColor" />
-              </div>
-              <div class="edit-comp__sections" v-if="activeComponent.className !== 'Text'">
-                Border:
-                <input class="sections__input" v-model="activeStroke" />
-              </div>
-              <div class="edit-comp__sections" v-if="activeComponent.className !== 'Text'">
-                BorderWidth:
-                <input class="sections__input" v-model="activeStrokeWidth" />
-              </div>
-              <div class="edit-comp__sections" v-if="activeComponent.className !== 'Text'">
-                Border-Radius:
-                <input class="sections__input" v-model="activeCornerRadius" />
-              </div>
-              <div class="edit-comp__sections" v-if="activeComponent.className === 'Text'">
-                Font-Size:
-                <input class="sections__input" v-model="activeFontSize" />
+        <div v-if="activeComponent !== null" id="edit-container">
+          <div id="cont">
+            <div class="drawer_edit">
+              <button class="edit-component-btn" @click="editCompIsActive = !editCompIsActive">
+                <span class="material-symbols-outlined"> settings </span>Edit
+                Component
+              </button>
+              <div class="edit-comp_div" v-if="editCompIsActive">
+                <div class="edit-comp__sections">
+                  Background-Color:
+                  <input class="sections__input" v-model="activeCompBgColor" />
+                </div>
+                <div class="edit-comp__sections" v-if="activeComponent.className !== 'Text'">
+                  Border:
+                  <input class="sections__input" v-model="activeStroke" />
+                </div>
+                <div class="edit-comp__sections" v-if="activeComponent.className !== 'Text'">
+                  BorderWidth:
+                  <input class="sections__input" v-model="activeStrokeWidth" />
+                </div>
+                <div class="edit-comp__sections" v-if="activeComponent.className !== 'Text'">
+                  Border-Radius:
+                  <input class="sections__input" v-model="activeCornerRadius" />
+                </div>
+                <div class="edit-comp__sections" v-if="activeComponent.className === 'Text'">
+                  Font-Size:
+                  <input class="sections__input" v-model="activeFontSize" />
+                </div>
+                <button id="delete-btn" @click="deleteComp">
+                  <span class="material-symbols-outlined">
+                    delete
+                  </span>
+                </button>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+      <div class="fixed-menu">
+        <img src="../../public/MeFoWeLogoWhite.png" alt="HTML/CSS Quiz Logo" width="40" height="20">
+        <button class="menu-open" aria-label="open menu" @click="drawerIsActive = !drawerIsActive"><span
+            class="material-symbols-outlined">
+            {{ drawerIsActive ? "keyboard_double_arrow_right" : "keyboard_double_arrow_left"}}
+          </span></button>
+      </div>
+    </nav>
     <div v-if="userImage" class="wrap">
       <div class="modal js-modal">
         <button v-if="!compared" @click="compare">Compare</button>
@@ -73,9 +87,9 @@
             star
           </span>
           <span v-else-if="
-              100 - result.misMatchPercentage > 85 &&
-              100 - result.misMatchPercentage < 95
-            " class="material-symbols-outlined">
+            100 - result.misMatchPercentage > 85 &&
+            100 - result.misMatchPercentage < 95
+          " class="material-symbols-outlined">
             done
           </span>
           <span v-else-if="100 - result.misMatchPercentage < 85" class="material-symbols-outlined">
@@ -776,6 +790,15 @@ export default defineComponent({
     let editCompIsActive = ref<boolean>(false);
     let activeComponent = ref<Rect | Text | null>(null);
 
+    watch(
+      () => activeComponent.value,
+      () => {
+        if (activeComponent.value !== null) {
+          editCompIsActive.value = false
+        }
+      }
+    );
+
     let activeCompBgColor = ref<string>("hello");
     watch(
       () => activeCompBgColor.value,
@@ -897,6 +920,25 @@ export default defineComponent({
       activeFontSize.value = activeComp.attrs.fontSize;
     };
 
+    const deleteComp = () => {     
+      const transformerNode = transformer.value.getNode();
+      const stage = transformerNode.getStage() as Stage;
+      if (stage.children && stage.children[2].children) {
+        stage.children[2].children.forEach((component, idx) => {
+          if (activeComponent.value !== null) {
+            if (component.attrs.id === activeComponent.value.attrs.id && stage.children && stage.children[2].children){
+              stage.children[2].children?.splice(idx,1)
+            }
+          }
+        })        
+      } 
+      if (stage.children) {
+        stage.add(new Layer)
+        stage.children.pop()
+      } 
+      activeComponent.value = null
+    }
+ 
     return {
       rectList,
       textList,
@@ -926,6 +968,7 @@ export default defineComponent({
       activeStroke,
       activeStrokeWidth,
       activeFontSize,
+      deleteComp
     };
   },
 });
@@ -933,25 +976,6 @@ export default defineComponent({
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -991,109 +1015,75 @@ a {
   color: #42b983;
 }
 
-.drawer #button {
-  width: 35px;
-  height: 35px;
-  border: #80ba24 12px solid;
-  border-radius: 35px;
-  margin: 0 auto;
-  position: inherit;
-  top: 30%;
-  right: -25px;
-  -webkit-transition: all 1s ease;
-  -moz-transition: all 1s ease;
-  -o-transition: all 1s ease;
-  -ms-transition: all 1s ease;
-  transition: all 1s ease;
-  z-index: 9999;
-  cursor: pointer;
-}
 
-.drawer #button.active {
-  width: 35px;
-  height: 35px;
-  border: #80ba24 12px solid;
-  -webkit-transition: all 1s ease;
-  -moz-transition: all 1s ease;
-  -o-transition: all 1s ease;
-  -ms-transition: all 1s ease;
-  transition: all 1s ease;
-  cursor: pointer;
-}
-
-.drawer {
-  top: 110px;
-  right: -32px;
+/* .menu-wrapper
+–––––––––––––––––––––––––––––––––––––––––––––––––– */
+.top-nav .menu-wrapper {
   position: fixed;
-  width: 2em;
-  overflow: hidden;
-  margin: 0 auto;
-  border-radius: 6px;
-  -webkit-transition: all 1s ease;
-  -moz-transition: all 1s ease;
-  -o-transition: all 1s ease;
-  -ms-transition: all 1s ease;
-  transition: all 1s ease;
-  z-index: 999;
-}
-
-.drawer.active {
-  -webkit-transition: all 1s ease;
-  -moz-transition: all 1s ease;
-  -o-transition: all 1s ease;
-  -ms-transition: all 1s ease;
-  transition: all 1s ease;
-  width: 13em;
-}
-
-.drawer #container {
-  margin-top: 5px;
-  width: 100%;
-  height: 100%;
-  position: relative;
-  top: 0;
-  left: 0;
-  background-color: #21333c;
-  color: #21333c;
-  border-radius: 4px;
-  box-shadow: 3px 3px 10px rgb(74, 74, 74);
-}
-
-.drawer #cont {
-  height: auto;
-  margin: 0 auto;
-  display: flex;
-  flex-wrap: wrap;
-}
-
-.drawer #edit-container {
-  margin-top: 5px;
-  width: 100%;
-  height: 50%;
-  position: relative;
-  top: 0;
-  left: 0;
-  background-color: #21333c;
-  color: #21333c;
+  top: 103px;
+  right: 0;
+  height: 250px;
+  width: 200px;
+  transform: translateX(200px);
+  transition: transform .7s;
+  background: #21333c;
   border-radius: 4px;
   box-shadow: 2px 2px 10px rgb(100, 100, 100);
 }
 
-.drawer_center {
-  width: 500px;
-  text-align: center;
+.top-nav .menu-wrapper.is-opened {
+  transform: translateX(20px);
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
-.drawer_center button {
+.top-nav .menu-wrapper.is-opened.is-editBtn {
+  height: 320px;
+}
+.top-nav .menu-wrapper.is-opened.is-editBtn.is-edit {
+  height: 560px;
+}
+
+.top-nav .menu-wrapper .menu {
+  opacity: 0;
+  transition: opacity .4s;
+}
+
+.top-nav .menu-wrapper.is-opened .menu {
+  opacity: 1;
+  transition-delay: .6s;
+}
+
+.top-nav .menu-wrapper .menu a {
+  font-size: 1.2rem;
+}
+
+.top-nav .menu-wrapper .sub-menu {
+  padding: 10px 0 0 7px;
+}
+
+.top-nav .menu-wrapper .menu-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  font-size: 1.6rem;
+}
+
+#container{  
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: column;
+}
+
+#component-btn{
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: space-evenly;
   width: 90px;
   height: 90px;
-  margin: 10px;
+  margin: 25px;
   padding: 6px 10px;
   font-family: Roboto;
   font-size: 16px;
@@ -1105,14 +1095,17 @@ a {
   cursor: pointer;
   border: 2px solid #80ba24;
 }
-.drawer_center button span {
+  
+#component-btn span {
   font-size: 32px;
 }
-.drawer_center button:hover {
+
+#component-btn:hover {
   background-color: #6ca512;
   border: 2px solid #80ba24;
 }
-.drawer_edit .edit-component-btn {
+
+.edit-component-btn {
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -1131,30 +1124,115 @@ a {
   cursor: pointer;
   box-shadow: 2px 2px 10px rgb(100, 100, 100);
 }
-.drawer_edit .edit-component-btn span {
+
+.edit-component-btn span {
   font-size: 24px;
 }
 
-.drawer_edit .edit-component-btn:hover {
+.edit-component-btn:hover {
   background-color: #80ba243f;
 }
 
-.drawer h3 {
-  font-size: 30px;
-  font-weight: 100;
-  margin-top: 70px;
-  margin-left: 40px;
+.edit-comp_div {
+  font-size: 12px;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-left: 11px;
 }
 
-.toggle::before {
-  content: "x";
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  line-height: 30px;
+.edit-comp_div {
+  width: 143px;
+}
+
+.edit-comp__sections {
+  width: 143px;
+  margin-bottom: 10px;
+}
+
+#delete-btn {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-evenly;
+  width: 50px;
+  height: 40px;
+  margin-left: 50px;
+  padding: 6px 10px;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 3px;
+  background-color: transparent;
+  border: 2px solid #80ba24;
+  color: #fff;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: 2px 2px 10px rgb(100, 100, 100);
+}
+
+#delete-btn span {
+  font-size: 24px;
+}
+
+#delete-btn:hover {
+  background-color: #80ba243f;
+}
+
+.sections__input {
+  width: 141px;
+
+}
+.sections__input:focus-visible {
+  border: 0;
+
+}
+
+
+/* .fixed menu
+–––––––––––––––––––––––––––––––––––––––––––––––––– */
+
+.top-nav .fixed-menu {
+  position: fixed;
+  top: 103px;
+  right: 0;
+  height: 250px;
+  display: flex;
+  flex-direction: column;
+  width: 50px;
+  background: #21333c;
+  align-items: center;
+}
+
+.top-nav .fixed-menu .menu-open {
+  font-size: 1.8rem;
+  font-size: 1.25em;
+  font-weight: 500;
+  width: 35px;
+  height: 40px;
+  color: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+  background-color: transparent;
+  transition: background 0.4s ease, color 0.4s ease;
+  box-shadow: 2px 2px 10px rgb(100, 100, 100);
+  border: 2px solid #80ba24;
   text-align: center;
+  margin-top: 75px;
 }
 
+.top-nav .fixed-menu .menu-open:hover {
+  color: #fff;
+  background-color: #80ba243f;
+  border: 2px solid #80ba24;
+}
+
+img {
+  margin-top: 10px;
+}
+
+/* comparison__container
+–––––––––––––––––––––––––––––––––––––––––––––––––– */
 #comparison__container {
   color: white;
 }
@@ -1191,7 +1269,7 @@ p {
   color: #666;
 }
 
-button {
+.wrap button {
   font-size: 1.25em;
   font-weight: 500;
   padding: 0.5em 1em;
@@ -1202,28 +1280,10 @@ button {
   box-shadow: 2px 2px 10px rgb(100, 100, 100);
   border: 2px solid #80ba24;
 }
-button:hover {
+.wrap button:hover {
   color: #21333c;
   background-color: #80ba243f;
   border: 2px solid #80ba24;
-}
-
-.edit-comp_div {
-  font-size: 12px;
-  color: white;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  margin-left: 10px;
-}
-.edit-comp_div {
-  width: 143px;
-}
-.edit-comp__sections{
-    width: 143px;
-    margin-bottom: 10px;
-}
-.sections__input{ width: 143px;
 }
 
 #container__images {
