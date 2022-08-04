@@ -799,21 +799,21 @@ export default defineComponent({
           const stage = transformerNode.getStage() as Stage;
 
           let id = activeComponent.value.attrs.id;
-          const shape = rectList.value.find((r) => r.attrs.id === id);
+          let shape = rectList.value.find((r) => r.attrs.id === id);
           if (shape && !(shape instanceof Layer)) {
             shape.attrs.fill = newValue;
             setActiveAttributes(shape as Rect);
-          }
-          if (stage.children && stage.children[2].children) {
-            stage.children[2].children.forEach((value, idx) => {
-              console.log("value", value);
-              if (stage.children && stage.children[2].children) {
-                if (value.attrs.id === activeComponent.value) {
-                  stage.children[2].children[idx] = shape as Rect;
-                }
-              }
-            });
-          }
+          } else {
+            const shape = textList.value.find((r) => r.attrs.id === id);
+            if (shape && !(shape instanceof Layer)) {       
+              shape.attrs.fill = newValue;
+              setActiveAttributes(shape as Text);
+            }
+          }            
+          if (stage.children){
+            stage.add(new Layer)
+            stage.children.pop()
+          }       
         }
       }
     );
@@ -832,7 +832,10 @@ export default defineComponent({
             shape.attrs.cornerRadius = parseInt(newValue.toString());
             setActiveAttributes(shape as Rect);
           }
-          // stage.add(stageLayer);
+          if (stage.children) {
+            stage.add(new Layer)
+            stage.children.pop()
+          }     
         }
       }
     );
@@ -850,7 +853,10 @@ export default defineComponent({
             shape.attrs.stroke = newValue;
             setActiveAttributes(shape as Rect);
           }
-          // stage.add(stageLayer);
+          if (stage.children) {
+            stage.add(new Layer)
+            stage.children.pop()
+          }     
         }
       }
     );
@@ -868,7 +874,10 @@ export default defineComponent({
             shape.attrs.strokeWidth = parseInt(newValue.toString());
             setActiveAttributes(shape as Rect);
           }
-          // stage.add(stageLayer);
+          if (stage.children) {
+            stage.add(new Layer)
+            stage.children.pop()
+          }     
         }
       }
     );
@@ -886,7 +895,10 @@ export default defineComponent({
             shape.attrs.fontSize = parseInt(newValue.toString());
             setActiveAttributes(shape as Text);
           }
-          // stage.add(stageLayer);
+          if (stage.children) {
+            stage.add(new Layer)
+            stage.children.pop()
+          }     
         }
       }
     );
