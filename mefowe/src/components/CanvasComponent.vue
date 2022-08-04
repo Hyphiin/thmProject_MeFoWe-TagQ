@@ -249,9 +249,6 @@ export default defineComponent({
         document!.images[i]!.parentNode!.removeChild(document.images[i]);
 
       context.emit("nextQuestion");
-      // rectLayer.clear();
-      // textLayer.clear();
-      // buttonLayer.clear();
       setTimeout(() => {
         drawLinesSolution();
       }, 200);

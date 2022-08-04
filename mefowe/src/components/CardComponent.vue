@@ -64,6 +64,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
+import store from "@/store";
 
 export default defineComponent({
   name: "Card",
@@ -75,6 +76,7 @@ export default defineComponent({
   },
   setup(_props, context) {
     const chooseOption = (level: string) => {
+      store.commit("chooseDifficulty", level);
       context.emit("chosenOption", level);
     };
 
