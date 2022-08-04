@@ -37,7 +37,6 @@ export default defineComponent({
     const createdImage = ref<string>("");
 
     const saveImage = (image: string) => {
-      console.log(image);
       createdImage.value = image;
     };
 

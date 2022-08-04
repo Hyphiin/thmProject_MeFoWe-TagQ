@@ -1,15 +1,23 @@
 <template>
   <div class="canvas__component">
     <div v-if="!compared" class="component">
-      <button v-if="userImage && !compared" @click="compare">Compare</button>
-      <v-stage ref="stage" :config="configKonva" @dragstart="handleDragstart" @dragend="handleDragend"
-        @dragmove="handleDragmove" @mousedown="handleStageMouseDown" @touchstart="handleStageMouseDown">
+      <v-stage
+        ref="stage"
+        :config="configKonva"
+        @dragstart="handleDragstart"
+        @dragend="handleDragend"
+        @dragmove="handleDragmove"
+        @mousedown="handleStageMouseDown"
+        @touchstart="handleStageMouseDown"
+      >
         <v-layer ref="background__layer">
-          <v-rect :config="{
+          <v-rect
+            :config="{
               width: 1800,
               height: 1000,
               fill: 'white',
-            }" />
+            }"
+          />
         </v-layer>
         <v-layer ref="layer">
           <v-transformer ref="transformer" />
@@ -18,47 +26,55 @@
       </v-stage>
     </div>
     <div class="drawer" :class="drawerIsActive ? 'active' : ''">
-      <div id="button" :class="drawerIsActive ? 'active' : ''" v-on:click="drawerIsActive = !drawerIsActive"></div>
+      <div
+        id="button"
+        :class="drawerIsActive ? 'active' : ''"
+        v-on:click="drawerIsActive = !drawerIsActive"
+      ></div>
       <div id="container">
         <div id="cont">
           <div class="drawer_center">
-            <button @click="addRect"><span class="material-symbols-outlined">
-                rectangle
-              </span>Add Rect</button>
+            <button @click="addRect">
+              <span class="material-symbols-outlined"> rectangle </span>Add Rect
+            </button>
 
-            <button @click="addText"><span class="material-symbols-outlined">
-                text_fields
-              </span>Add Text</button>
+            <button @click="addText">
+              <span class="material-symbols-outlined"> text_fields </span>Add
+              Text
+            </button>
           </div>
         </div>
       </div>
       <div v-if="activeComponent !== null" id="edit-container">
         <div id="cont">
           <div class="drawer_center">
-            <button class="edit-component-btn" @click="editCompIsActive = !editCompIsActive"><span
-                class="material-symbols-outlined">
-                settings
-              </span>Edit Component</button>
+            <button
+              class="edit-component-btn"
+              @click="editCompIsActive = !editCompIsActive"
+            >
+              <span class="material-symbols-outlined"> settings </span>Edit
+              Component
+            </button>
             <div class="edit-comp_div" v-if="editCompIsActive">
               <div>
                 Background-Color:
-                <input v-model="activeCompBgColor">
+                <input v-model="activeCompBgColor" />
               </div>
               <div v-if="activeComponent.className !== 'Text'">
                 Border:
-                <input v-model="activeStroke">
+                <input v-model="activeStroke" />
               </div>
               <div v-if="activeComponent.className !== 'Text'">
                 BorderWidth:
-                <input v-model="activeStrokeWidth">
+                <input v-model="activeStrokeWidth" />
               </div>
               <div v-if="activeComponent.className !== 'Text'">
                 Border-Radius:
-                <input v-model="activeCornerRadius">
+                <input v-model="activeCornerRadius" />
               </div>
               <div v-if="activeComponent.className === 'Text'">
                 Font-Size:
-                <input v-model="activeFontSize">
+                <input v-model="activeFontSize" />
               </div>
             </div>
           </div>
@@ -67,17 +83,30 @@
     </div>
     <div class="wrap">
       <div class="modal js-modal">
+        <button v-if="userImage && !compared" @click="compare">Compare</button>
         <div v-if="result" class="modal-image">
-          <svg v-if="100 - result.misMatchPercentage > 75" viewBox="0 0 32 32" style="fill: #48db71">
+          <svg
+            v-if="100 - result.misMatchPercentage > 95"
+            viewBox="0 0 32 32"
+            style="fill: #48db71"
+          >
             <path d="M1 14 L5 10 L13 18 L27 4 L31 8 L13 26 z"></path>
           </svg>
-          <svg v-else-if="
-              100 - result.misMatchPercentage > 25 &&
-              100 - result.misMatchPercentage < 75
-            " viewBox="0 0 32 32" style="fill: #ffff00">
+          <svg
+            v-else-if="
+              100 - result.misMatchPercentage > 85 &&
+              100 - result.misMatchPercentage < 95
+            "
+            viewBox="0 0 32 32"
+            style="fill: #ffff00"
+          >
             <path d="M1 14 L5 10 L13 18 L27 4 L31 8 L13 26 z"></path>
           </svg>
-          <svg v-else-if="100 - result.misMatchPercentage < 25" viewBox="0 0 32 32" style="fill: #ff0000">
+          <svg
+            v-else-if="100 - result.misMatchPercentage < 85"
+            viewBox="0 0 32 32"
+            style="fill: #ff0000"
+          >
             <path d="M1 14 L5 10 L13 18 L27 4 L31 8 L13 26 z"></path>
           </svg>
         </div>
@@ -85,12 +114,6 @@
           {{ 100 - result.misMatchPercentage }}% Übereinstimmung konnte
           festgestellt werden.
         </h1>
-        <div v-else class="lds-ring">
-          <div></div>
-          <div></div>
-          <div></div>
-          <div></div>
-        </div>
         <button v-if="compared" @click="nextQuestion">Nächste Frage</button>
         <div id="container__images"></div>
       </div>
@@ -147,7 +170,6 @@ export default defineComponent({
     watch(
       () => props.createdImage,
       (newValue) => {
-        console.log("userImage => ", newValue);
         if (newValue) {
           userImage.value = newValue;
           result.value = undefined;
@@ -210,6 +232,7 @@ export default defineComponent({
 
           if (stage.children) {
             stage.children.splice(3, 1);
+            stage.children.splice(1, 1);
 
             let compareImage = "";
             stage.toDataURL({
@@ -231,14 +254,10 @@ export default defineComponent({
 
             container.appendChild(canvasImg);
 
-            console.log(userImage.value);
-            console.log(compareImage);
-
             resemble(userImage.value)
               .compareTo(compareImage)
               .ignoreLess()
               .onComplete(function (data) {
-                console.log(data);
                 result.value = data;
                 compared.value = true;
               });
@@ -748,7 +767,6 @@ export default defineComponent({
         }
       }
       updateTransformer();
-      console.log(activeComponent.value)
     };
 
     const updateTransformer = () => {
@@ -791,13 +809,13 @@ export default defineComponent({
           }
           if (stage.children && stage.children[2].children) {
             stage.children[2].children.forEach((value, idx) => {
-              console.log("value",value)
+              console.log("value", value);
               if (stage.children && stage.children[2].children) {
-                if (value.attrs.id === activeComponent.value){
-                  stage.children[2].children[idx] = shape as Rect
+                if (value.attrs.id === activeComponent.value) {
+                  stage.children[2].children[idx] = shape as Rect;
                 }
               }
-            })          
+            });
           }
         }
       }

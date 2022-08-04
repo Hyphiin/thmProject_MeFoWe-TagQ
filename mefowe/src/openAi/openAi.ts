@@ -24,7 +24,6 @@ export const generateTemplate = async (wish: string) => {
       return "Failed!";
     }
   } catch (err) {
-    console.log(err);
     return err as string;
   }
 };

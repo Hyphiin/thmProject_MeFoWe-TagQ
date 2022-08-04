@@ -34,6 +34,7 @@ export default defineComponent({
     },
   },
   emits: {
+    // -> pass created Image of Code to Quiz-Parentn for comparison
     createdImage(image: string): boolean {
       return typeof image === "string";
     },
@@ -44,10 +45,11 @@ export default defineComponent({
 
     onMounted(async () => {
       loading.value = true;
-      // await generateTemplate(props.chosenLayout).then((result) => {
-      //   template.value = result;
-      //   loading.value = false;
-      // });
+      // -> generate a layout based on the chosen option from the difficulty level
+      await generateTemplate(props.chosenLayout).then((result) => {
+        template.value = result;
+        loading.value = false;
+      });
     });
 
     const body = ref<string>("");
@@ -58,8 +60,6 @@ export default defineComponent({
     watch(
       () => template.value,
       (newValue) => {
-        console.log(template.value);
-        renderIFrame.value = true;
         if (template.value.length > 0) {
           // get the iFrame for image insert
           let frame = document.getElementById("theFrame");
@@ -104,15 +104,10 @@ export default defineComponent({
                 style.appendChild(doc.createTextNode(matching[1]));
                 stylePart.value = cssbeautify(matching[1]);
 
-                console.log("Frame => ", frame);
-
                 if (frame && frame instanceof HTMLIFrameElement) {
                   // Copy the new HTML document into the frame
-
                   let destDocument = frame.contentDocument;
                   let srcNode = doc.documentElement;
-
-                  console.log("contentDocument => ", destDocument);
 
                   if (destDocument) {
                     let newNode = destDocument.importNode(srcNode, true);
@@ -160,14 +155,10 @@ export default defineComponent({
                   // readjust the formatting for display in code-editor
                   stylePart.value = cssbeautify(matching[1]);
 
-                  console.log("Frame => ", frame);
-
                   if (frame && frame instanceof HTMLIFrameElement) {
                     // Copy the new HTML document into the frame
                     let destDocument = frame.contentDocument;
                     let srcNode = doc.documentElement;
-
-                    console.log("contentDocument => ", destDocument);
 
                     if (destDocument) {
                       let newNode = destDocument.importNode(srcNode, true);
@@ -190,14 +181,11 @@ export default defineComponent({
                   }
                 }
               } else {
-                console.log("Frame => ", frame);
                 // if no style was found, continue without it
                 if (frame && frame instanceof HTMLIFrameElement) {
                   // Copy the new HTML document into the frame
                   let destDocument = frame.contentDocument;
                   let srcNode = doc.documentElement;
-
-                  console.log("contentDocument => ", destDocument);
 
                   if (destDocument) {
                     let newNode = destDocument.importNode(srcNode, true);
@@ -229,14 +217,17 @@ export default defineComponent({
       () => store.state.chosenOption,
       async (newValue) => {
         loading.value = true;
-        // await generateTemplate(newValue).then((result) => {
-        //   template.value = result;
-        //   loading.value = false;
-        // });
+        renderIFrame.value = true;
+        // -> generate a layout based on the chosen option from the difficulty level
+        await generateTemplate(newValue).then((result) => {
+          template.value = result;
+          loading.value = false;
+        });
       }
     );
 
     function process(str: string) {
+      // -> beautify html-markup
       var div = document.createElement("div");
       div.innerHTML = str.trim();
 
