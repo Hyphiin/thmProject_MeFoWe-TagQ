@@ -50,7 +50,7 @@
         <div class="content">
           <p>
             Diese Level ist für erfahrene Entwickler gedacht, die bereits sehr
-            sicher im Umgang mit HTML und CSS sind un ein breit gefächertes
+            sicher im Umgang mit HTML und CSS sind und ein breit gefächertes
             Verständnis haben.
           </p>
           <router-link :to="{ name: 'Quiz' }" @click="chooseOption('level3')">
