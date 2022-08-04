@@ -85,30 +85,27 @@
       <div class="modal js-modal">
         <button v-if="!compared" @click="compare">Compare</button>
         <div v-if="result" class="modal-image">
-          <svg
+          <span
             v-if="100 - result.misMatchPercentage > 95"
-            viewBox="0 0 32 32"
-            style="fill: #48db71"
+            class="material-symbols-outlined"
           >
-            <path d="M1 14 L5 10 L13 18 L27 4 L31 8 L13 26 z"></path>
-          </svg>
-          <svg
+            star
+          </span>
+          <span
             v-else-if="
               100 - result.misMatchPercentage > 85 &&
               100 - result.misMatchPercentage < 95
             "
-            viewBox="0 0 32 32"
-            style="fill: #ffff00"
+            class="material-symbols-outlined"
           >
-            <path d="M1 14 L5 10 L13 18 L27 4 L31 8 L13 26 z"></path>
-          </svg>
-          <svg
+            done
+          </span>
+          <span
             v-else-if="100 - result.misMatchPercentage < 85"
-            viewBox="0 0 32 32"
-            style="fill: #ff0000"
+            class="material-symbols-outlined"
           >
-            <path d="M1 14 L5 10 L13 18 L27 4 L31 8 L13 26 z"></path>
-          </svg>
+            close
+          </span>
         </div>
         <h1 v-if="result">
           {{ 100 - result.misMatchPercentage }}% Übereinstimmung konnte
