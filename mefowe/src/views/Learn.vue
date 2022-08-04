@@ -41,7 +41,7 @@ export default defineComponent({
   components: {},
   setup() {
     const descriptionHTML = ref([
-      { type: "HTMl", name: "a", tag: "", text: "definiert einen Hyperlink" },
+      { type: "HTMl", name: "a", tag: "<a href='link'>Text</a>", text: "Definiert einen Hyperlink" },
       {
         type: "HTMl",
         name: "body",
@@ -70,7 +70,7 @@ export default defineComponent({
         type: "HTMl",
         name: "em",
         tag: "",
-        text: "stellt das umschlossene Wort kursiv da",
+        text: "Stellt das umschlossene Wort kursiv da",
       },
       {
         type: "HTMl",
@@ -112,7 +112,7 @@ export default defineComponent({
         type: "HTMl",
         name: "i",
         tag: "",
-        text: "stellt das umschlossene Wort kursiv da",
+        text: "Stellt das umschlossene Wort kursiv da",
       },
       {
         type: "HTMl",
@@ -208,7 +208,7 @@ export default defineComponent({
         type: "HTMl",
         name: "th",
         tag: "",
-        text: "Definiert eine Zelle als Überschrift für Spalten/Zeilen, über den scope definierbar",
+        text: "Definiert eine Zelle als Überschrift für Spalten/Zeilen, über den Scope definierbar",
       },
       {
         type: "HTMl",
@@ -232,13 +232,13 @@ export default defineComponent({
         type: "HTMl",
         name: "ul",
         tag: "<ul>\n  <li></li>\n  <li></li>\n</ul>",
-        text: "beinhaltet eine ungeordnete Liste mit li elementen",
+        text: "Beinhaltet eine ungeordnete Liste mit li Elementen",
       },
       {
         type: "HTMl",
         name: "video",
         tag: "",
-        text: "bettet Videos ein, mehrere Quellen per src defenierbar",
+        text: "Bettet Videos ein, mehrere Quellen per src defenierbar",
       },
     ]);
 
