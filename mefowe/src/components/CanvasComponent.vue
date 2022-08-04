@@ -81,9 +81,9 @@
         </div>
       </div>
     </div>
-    <div class="wrap">
+    <div v-if="userImage" class="wrap">
       <div class="modal js-modal">
-        <button v-if="userImage && !compared" @click="compare">Compare</button>
+        <button v-if="!compared" @click="compare">Compare</button>
         <div v-if="result" class="modal-image">
           <svg
             v-if="100 - result.misMatchPercentage > 95"
@@ -938,6 +938,12 @@ export default defineComponent({
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+.canvas__component {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
 .canvas {
   height: 100%;
   margin: 20px;
@@ -1122,7 +1128,8 @@ a {
 }
 
 .wrap {
-  margin: auto;
+  margin: 20px;
+  max-width: 1300px;
 }
 
 .modal {
@@ -1178,5 +1185,11 @@ button:hover {
   flex-direction: column;
   align-items: flex-start;
   margin-left: 10px;
+}
+
+#container__images {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 </style>
