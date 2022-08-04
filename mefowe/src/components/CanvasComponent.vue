@@ -34,7 +34,7 @@
       </div>
       <div v-if="activeComponent !== null" id="edit-container">
         <div id="cont">
-          <div class="drawer_center">
+          <div class="drawer_edit">
             <button class="edit-component-btn" @click="editCompIsActive = !editCompIsActive">
               <span class="material-symbols-outlined"> settings </span>Edit
               Component
@@ -945,6 +945,21 @@ export default defineComponent({
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 .canvas__component {
   display: flex;
   flex-direction: column;
@@ -1040,6 +1055,8 @@ a {
   left: 0;
   background-color: #21333c;
   color: #21333c;
+  border-radius: 4px;
+  box-shadow: 3px 3px 10px rgb(74, 74, 74);
 }
 
 .drawer #cont {
@@ -1058,6 +1075,8 @@ a {
   left: 0;
   background-color: #21333c;
   color: #21333c;
+  border-radius: 4px;
+  box-shadow: 2px 2px 10px rgb(100, 100, 100);
 }
 
 .drawer_center {
@@ -1093,7 +1112,7 @@ a {
   background-color: #6ca512;
   border: 2px solid #80ba24;
 }
-.drawer_center .edit-component-btn {
+.drawer_edit .edit-component-btn {
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -1105,18 +1124,19 @@ a {
   font-size: 14px;
   font-weight: 500;
   border-radius: 3px;
-  background-color: #80ba24;
-  color: white;
+  background-color: transparent;
+  border: 2px solid #80ba24;
+  color: #fff;
   text-decoration: none;
   cursor: pointer;
-  box-shadow: 3px 3px 6px rgb(57, 57, 57);
+  box-shadow: 2px 2px 10px rgb(100, 100, 100);
 }
-.drawer_center .edit-component-btn span {
+.drawer_edit .edit-component-btn span {
   font-size: 24px;
 }
 
-.drawer_center .edit-component-btn:hover {
-  background-color: #6ca512;
+.drawer_edit .edit-component-btn:hover {
+  background-color: #80ba243f;
 }
 
 .drawer h3 {
@@ -1173,18 +1193,18 @@ p {
 
 button {
   font-size: 1.25em;
-  font-weight: bold;
+  font-weight: 500;
   padding: 0.5em 1em;
-  color: #fff;
+  color: #21333c;
   border-radius: 0.25em;
   cursor: pointer;
   transition: background 0.4s ease, color 0.4s ease;
-  box-shadow: 3px 3px 6px rgb(57, 57, 57);
+  box-shadow: 2px 2px 10px rgb(100, 100, 100);
   border: 2px solid #80ba24;
 }
 button:hover {
-  color: #000;
-  background-color: transparent;
+  color: #21333c;
+  background-color: #80ba243f;
   border: 2px solid #80ba24;
 }
 
