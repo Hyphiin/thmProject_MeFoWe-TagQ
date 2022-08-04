@@ -5,6 +5,7 @@
     <div class="wrapper">
       <div class="container">
         <div class="card">
+          <div class="headerhtml"> <h2>HTML</h2></div>
           <div v-for="(item, index) in descriptionHTML" :key="index">
             <div class="portion">
               <div class="name">{{ item.name }}</div>
@@ -20,6 +21,7 @@
         </div>
         <div class="spacer"></div>
         <div class="card">
+          <div class="headerhtml"><h2>CSS</h2></div>
           <div v-for="(item, index) in descriptionCSS" :key="index">
             <div class="portion">
               <div class="name">{{ item.name }}</div>
@@ -269,44 +271,44 @@ export default defineComponent({
       {
         type: "CSS",
         name: "display",
-        style: "",
+        style: "block, flex, inline-block, inline, none",
         text: "Legt das Verhalten des Inhalts fest, block, inline, flex, none",
       },
       {
         type: "CSS",
         name: "width",
-        style: "",
+        style: "px, em, %, vw",
         text: "Die Breite des Elements",
       },
-      { type: "CSS", name: "height", style: "", text: "Die Höhe des Elements" },
+      { type: "CSS", name: "height", style: "px, em, %, vh", text: "Die Höhe des Elements" },
       {
         type: "CSS",
         name: "min-width",
-        style: "",
+        style: "px, em, %, vw",
         text: "die minimale breite des Elements, die nicht unterschritten wird",
       },
       {
         type: "CSS",
         name: "min-height",
-        style: "",
+        style: "px, em, %, vh",
         text: "die minimale höhe des Elements, die nicht unterschritten wird",
       },
       {
         type: "CSS",
         name: "max-width",
-        style: "",
+        style: "px, em, %, vw",
         text: "die maximale breite des Elements, die nicht überschritten wird",
       },
       {
         type: "CSS",
-        name: "min-width",
-        style: "",
+        name: "max-height",
+        style: "px, em, %, vw",
         text: "die maximale höhe des Elements, die nicht überschritten wird",
       },
       {
         type: "CSS",
         name: "margin",
-        style: "",
+        style: "px, em, %",
         text: "Abstand zwischen border und anderen Elementen",
       },
       {
@@ -325,8 +327,8 @@ export default defineComponent({
       {
         type: "CSS",
         name: "border-style",
-        style: "",
-        text: "Das Styling der Border, none, solid, dotted ...",
+        style: "none, solid, dotted, inset, dashed solid...",
+        text: "Das Styling der Border: nichts, fest...",
       },
       {
         type: "CSS",
@@ -349,19 +351,19 @@ export default defineComponent({
       {
         type: "CSS",
         name: "font-style",
-        style: "",
+        style: "normal, italic, oblique",
         text: "Gibt an ob es normal oder z.B. italic ist",
       },
       {
         type: "CSS",
         name: "font-weight",
-        style: "",
+        style: "normal, bold, lighter, bolder",
         text: "Gibt die dicke der Schrift an",
       },
       {
         type: "CSS",
         name: "position",
-        style: "",
+        style: "static, relative, absolute, fixed, sticky",
         text: "Gibt die Position des Elements an, static, relative, absolute, fixed...",
       },
       {
@@ -400,6 +402,15 @@ export default defineComponent({
 .container .card {
   position: relative;
   background: #21333c;
+  justify-content: center;
+  align-items: center;
+}
+
+.container .headerhtml {
+  height: 100px;
+  background-image: Url('../../public/img/html_header.jpg');
+  font-size: 30px;
+  display: flex;
   justify-content: center;
   align-items: center;
 }
