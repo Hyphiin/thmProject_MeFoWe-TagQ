@@ -153,7 +153,7 @@ export default defineComponent({
       {
         type: "HTMl",
         name: "ol",
-        tag: "",
+        tag: "<ol>\n  <li></li>\n  <li></li>\n</ol>",
         text: "Definiert eine geordnete Liste, Zahlen und Buchstaben sind möglich, auch verschachtlung",
       },
       {
@@ -231,7 +231,7 @@ export default defineComponent({
       {
         type: "HTMl",
         name: "ul",
-        tag: "",
+        tag: "<ul>\n  <li></li>\n  <li></li>\n</ul>",
         text: "beinhaltet eine ungeordnete Liste mit li elementen",
       },
       {
@@ -414,6 +414,8 @@ export default defineComponent({
 
 .container .card .portion .markup {
   width: 200px;
+  white-space: pre-wrap;
+  text-align: start;
 }
 
 .container .card .portion .elementText {
