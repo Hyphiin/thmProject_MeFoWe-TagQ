@@ -1129,7 +1129,6 @@ a {
 }
 
 .wrap {
-  margin: 20px;
   max-width: 1300px;
 }
 
