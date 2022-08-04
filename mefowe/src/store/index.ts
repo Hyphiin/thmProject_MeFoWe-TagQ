@@ -3,6 +3,7 @@ import { createStore } from "vuex";
 export default createStore({
   state() {
     return {
+      chosenLevel: "level1",
       chosenOption: "level1",
       level1: [
         "Create a complete html document with 3 div tags and plain css.",
@@ -30,7 +31,30 @@ export default createStore({
   },
   mutations: {
     chooseLevel(state: any, level: string) {
-      state.chosenOption = level;
+      if (state.chosenOption === level) {
+        switch (state.chooseDifficulty) {
+          case "level1": {
+            state.chosenOption =
+              "Create a complete html document with 2 div tags and plain css.";
+            break;
+          }
+          case "level2": {
+            state.chosenOption =
+              "Create a complete html document with a unordered list and a ordered list and plain css.";
+            break;
+          }
+          case "level3": {
+            state.chosenOption =
+              "Create a simple html Page for an designer with plain css and no images";
+            break;
+          }
+        }
+      } else {
+        state.chosenOption = level;
+      }
+    },
+    chooseDifficulty(state: any, level: string) {
+      state.chooseDifficulty = level;
     },
   },
   actions: {},

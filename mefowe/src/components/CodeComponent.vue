@@ -46,10 +46,10 @@ export default defineComponent({
     onMounted(async () => {
       loading.value = true;
       // -> generate a layout based on the chosen option from the difficulty level
-      // await generateTemplate(props.chosenLayout).then((result) => {
-      //   template.value = result;
-      //   loading.value = false;
-      // });
+      await generateTemplate(props.chosenLayout).then((result) => {
+        template.value = result;
+        loading.value = false;
+      });
     });
 
     const body = ref<string>("");
@@ -219,10 +219,10 @@ export default defineComponent({
         loading.value = true;
         renderIFrame.value = true;
         // -> generate a layout based on the chosen option from the difficulty level
-        // await generateTemplate(newValue).then((result) => {
-        //   template.value = result;
-        //   loading.value = false;
-        // });
+        await generateTemplate(newValue).then((result) => {
+          template.value = result;
+          loading.value = false;
+        });
       }
     );
 

@@ -3,9 +3,7 @@
     <div class="card">
       <div class="face face1">
         <div class="content">
-          <img
-            src="https://github.com/Jhonierpc/WebDevelopment/blob/master/CSS%20Card%20Hover%20Effects/img/design_128.png?raw=true"
-          />
+          <span class="material-symbols-outlined"> child_care </span>
           <h3>Level 1</h3>
         </div>
       </div>
@@ -24,9 +22,7 @@
     <div class="card">
       <div class="face face1">
         <div class="content">
-          <img
-            src="https://github.com/Jhonierpc/WebDevelopment/blob/master/CSS%20Card%20Hover%20Effects/img/code_128.png?raw=true"
-          />
+          <span class="material-symbols-outlined"> terminal </span>
           <h3>Level 2</h3>
         </div>
       </div>
@@ -46,9 +42,7 @@
     <div class="card">
       <div class="face face1">
         <div class="content">
-          <img
-            src="https://github.com/Jhonierpc/WebDevelopment/blob/master/CSS%20Card%20Hover%20Effects/img/launch_128.png?raw=true"
-          />
+          <span class="material-symbols-outlined"> rocket_launch </span>
           <h3>Level 3</h3>
         </div>
       </div>
@@ -56,7 +50,7 @@
         <div class="content">
           <p>
             Diese Level ist für erfahrene Entwickler gedacht, die bereits sehr
-            sicher im Umgang mit HTML und CSS sind un ein breit gefächertes
+            sicher im Umgang mit HTML und CSS sind und ein breit gefächertes
             Verständnis haben.
           </p>
           <router-link :to="{ name: 'Quiz' }" @click="chooseOption('level3')">
@@ -70,6 +64,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
+import store from "@/store";
 
 export default defineComponent({
   name: "Card",
@@ -81,6 +76,7 @@ export default defineComponent({
   },
   setup(_props, context) {
     const chooseOption = (level: string) => {
+      store.commit("chooseDifficulty", level);
       context.emit("chosenOption", level);
     };
 
@@ -92,6 +88,9 @@ export default defineComponent({
 </script>
 
 <style scoped>
+span {
+  font-size: 48px;
+}
 .container {
   width: 1000px;
   position: relative;

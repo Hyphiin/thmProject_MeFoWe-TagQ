@@ -118,6 +118,7 @@ import { Stage } from "konva/lib/Stage";
 import { Layer } from "konva/lib/Layer";
 import resemble from "resemblejs";
 import { Line } from "konva/lib/shapes/Line";
+import { Group } from "konva/lib/Group";
 //import DrawerComponent from "@/components/DrawerComponent.vue"; // @ is an alias to /src
 
 export default defineComponent({
@@ -262,9 +263,6 @@ export default defineComponent({
         document!.images[i]!.parentNode!.removeChild(document.images[i]);
 
       context.emit("nextQuestion");
-      // rectLayer.clear();
-      // textLayer.clear();
-      // buttonLayer.clear();
       setTimeout(() => {
         drawLinesSolution();
       }, 200);
@@ -579,7 +577,7 @@ export default defineComponent({
       return guides;
     }
 
-    var guideLines = new Layer();
+    var guideLines = new Group();
     function drawGuides(guides: any) {
       const transformerNode = transformer.value.getNode();
       const stage = transformerNode.getStage() as Stage;
@@ -597,9 +595,6 @@ export default defineComponent({
             x: 0,
             y: lg.lineGuide,
           });
-          if (stage.children) {
-        stage.children[2].add(line);
-      }
         } else if (lg.orientation === "V") {
           var line2 = new Line({
             points: [0, -6000, 0, 6000],
@@ -613,16 +608,13 @@ export default defineComponent({
             x: lg.lineGuide,
             y: 0,
           });
-          if (stage.children) {
-        stage.children[2].add(line2);
-      }
         }
       });
       
       //stage.add(guideLines);
-      // if (stage.children) {
-      //   stage.children[3].add(guideLines);
-      // }
+      if (stage.children) {
+        stage.children[3].add(guideLines);
+      }
       
     }
 
@@ -664,7 +656,7 @@ export default defineComponent({
 
     const handleDragmove = (e: KonvaEventObject<KonvaNodeEvent>) => {
       // clear all previous lines on the screen
-      //setTimeout(()=> {guideLines.find(".guid-line").forEach((l) => l.destroy());}, 500);
+      setTimeout(()=> {guideLines.find(".guid-line").forEach((l) => l.destroy());}, 500);
 
       // find possible snapping lines
       var lineGuideStops = getLineGuideStops(e.target);
