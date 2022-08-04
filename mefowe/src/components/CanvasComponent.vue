@@ -1,23 +1,14 @@
 <template>
   <div class="canvas__component">
     <div v-if="!compared" class="component">
-      <v-stage
-        ref="stage"
-        :config="configKonva"
-        @dragstart="handleDragstart"
-        @dragend="handleDragend"
-        @dragmove="handleDragmove"
-        @mousedown="handleStageMouseDown"
-        @touchstart="handleStageMouseDown"
-      >
+      <v-stage ref="stage" :config="configKonva" @dragstart="handleDragstart" @dragend="handleDragend"
+        @dragmove="handleDragmove" @mousedown="handleStageMouseDown" @touchstart="handleStageMouseDown">
         <v-layer ref="background__layer">
-          <v-rect
-            :config="{
+          <v-rect :config="{
               width: 1800,
               height: 1000,
               fill: 'white',
-            }"
-          />
+            }" />
         </v-layer>
         <v-layer ref="layer">
           <v-transformer ref="transformer" />
@@ -26,11 +17,7 @@
       </v-stage>
     </div>
     <div class="drawer" :class="drawerIsActive ? 'active' : ''">
-      <div
-        id="button"
-        :class="drawerIsActive ? 'active' : ''"
-        v-on:click="drawerIsActive = !drawerIsActive"
-      ></div>
+      <div id="button" :class="drawerIsActive ? 'active' : ''" v-on:click="drawerIsActive = !drawerIsActive"></div>
       <div id="container">
         <div id="cont">
           <div class="drawer_center">
@@ -48,33 +35,30 @@
       <div v-if="activeComponent !== null" id="edit-container">
         <div id="cont">
           <div class="drawer_center">
-            <button
-              class="edit-component-btn"
-              @click="editCompIsActive = !editCompIsActive"
-            >
+            <button class="edit-component-btn" @click="editCompIsActive = !editCompIsActive">
               <span class="material-symbols-outlined"> settings </span>Edit
               Component
             </button>
             <div class="edit-comp_div" v-if="editCompIsActive">
-              <div>
+              <div class="edit-comp__sections">
                 Background-Color:
-                <input v-model="activeCompBgColor" />
+                <input class="sections__input" v-model="activeCompBgColor" />
               </div>
-              <div v-if="activeComponent.className !== 'Text'">
+              <div class="edit-comp__sections" v-if="activeComponent.className !== 'Text'">
                 Border:
-                <input v-model="activeStroke" />
+                <input class="sections__input" v-model="activeStroke" />
               </div>
-              <div v-if="activeComponent.className !== 'Text'">
+              <div class="edit-comp__sections" v-if="activeComponent.className !== 'Text'">
                 BorderWidth:
-                <input v-model="activeStrokeWidth" />
+                <input class="sections__input" v-model="activeStrokeWidth" />
               </div>
-              <div v-if="activeComponent.className !== 'Text'">
+              <div class="edit-comp__sections" v-if="activeComponent.className !== 'Text'">
                 Border-Radius:
-                <input v-model="activeCornerRadius" />
+                <input class="sections__input" v-model="activeCornerRadius" />
               </div>
-              <div v-if="activeComponent.className === 'Text'">
+              <div class="edit-comp__sections" v-if="activeComponent.className === 'Text'">
                 Font-Size:
-                <input v-model="activeFontSize" />
+                <input class="sections__input" v-model="activeFontSize" />
               </div>
             </div>
           </div>
@@ -85,25 +69,16 @@
       <div class="modal js-modal">
         <button v-if="!compared" @click="compare">Compare</button>
         <div v-if="result" class="modal-image">
-          <span
-            v-if="100 - result.misMatchPercentage > 95"
-            class="material-symbols-outlined"
-          >
+          <span v-if="100 - result.misMatchPercentage > 95" class="material-symbols-outlined">
             star
           </span>
-          <span
-            v-else-if="
+          <span v-else-if="
               100 - result.misMatchPercentage > 85 &&
               100 - result.misMatchPercentage < 95
-            "
-            class="material-symbols-outlined"
-          >
+            " class="material-symbols-outlined">
             done
           </span>
-          <span
-            v-else-if="100 - result.misMatchPercentage < 85"
-            class="material-symbols-outlined"
-          >
+          <span v-else-if="100 - result.misMatchPercentage < 85" class="material-symbols-outlined">
             close
           </span>
         </div>
@@ -947,6 +922,18 @@ export default defineComponent({
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+
+
+
+
+
+
+
+
+
+
+
+
 .canvas__component {
   display: flex;
   flex-direction: column;
@@ -1078,19 +1065,22 @@ a {
   height: 90px;
   margin: 10px;
   padding: 6px 10px;
-  font-weight: bold;
+  font-family: Roboto;
+  font-size: 16px;
+  font-weight: 500;
   border-radius: 3px;
   background-color: #80ba24;
   color: white;
   text-decoration: none;
-  border: 0;
   cursor: pointer;
+  border: 2px solid #80ba24;
 }
 .drawer_center button span {
   font-size: 32px;
 }
 .drawer_center button:hover {
   background-color: #6ca512;
+  border: 2px solid #80ba24;
 }
 .drawer_center .edit-component-btn {
   display: flex;
@@ -1101,13 +1091,14 @@ a {
   height: 40px;
   margin: 10px;
   padding: 6px 10px;
-  font-weight: bold;
+  font-size: 14px;
+  font-weight: 500;
   border-radius: 3px;
   background-color: #80ba24;
   color: white;
   text-decoration: none;
-  border: 0;
   cursor: pointer;
+  box-shadow: 3px 3px 6px rgb(57, 57, 57);
 }
 .drawer_center .edit-component-btn span {
   font-size: 24px;
@@ -1172,19 +1163,18 @@ p {
 button {
   font-size: 1.25em;
   font-weight: bold;
-  background-color: #000;
-  border: none;
   padding: 0.5em 1em;
   color: #fff;
-  box-shadow: 0 0 0 2px #000 inset;
   border-radius: 0.25em;
   cursor: pointer;
   transition: background 0.4s ease, color 0.4s ease;
+  box-shadow: 3px 3px 6px rgb(57, 57, 57);
+  border: 2px solid #80ba24;
 }
 button:hover {
-  box-shadow: 0 0 0 2px #000 inset;
   color: #000;
   background-color: transparent;
+  border: 2px solid #80ba24;
 }
 
 .edit-comp_div {
@@ -1194,6 +1184,15 @@ button:hover {
   flex-direction: column;
   align-items: flex-start;
   margin-left: 10px;
+}
+.edit-comp_div {
+  width: 143px;
+}
+.edit-comp__sections{
+    width: 143px;
+    margin-bottom: 10px;
+}
+.sections__input{ width: 143px;
 }
 
 #container__images {

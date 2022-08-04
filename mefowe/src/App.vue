@@ -1,9 +1,12 @@
 <template>
   <div id="nav">
-    <div class="nav__title">HTML/CSS QUIZ</div>
+    <div class="nav__left">
+      <img src="../public/MeFoWeLogoWhite.png" alt="HTML/CSS Quiz Logo" width="70" height="35">
+      <div class="nav__title">HTML/CSS QUIZ</div>
+    </div>
     <div class="nav__buttons">
-      <router-link to="/">StartPage</router-link>
-      <router-link to="/learn">Learn</router-link>
+      <router-link id="button" to="/">Startseite</router-link>
+      <router-link id="button" to="/learn">Lernen</router-link>
     </div>
   </div>
   <router-view />
@@ -26,7 +29,7 @@ body {
   margin: 0px;
 }
 #app {
-  font-family: consolas;
+  font-family: Roboto;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
@@ -37,10 +40,18 @@ body {
 #nav {
   display: flex;
   justify-content: space-between;
-  padding: 20px;
+  height: 60px;
   background-color: #80ba24;
   font-weight: bold;
   color: #21333c;
+  align-items: center;
+}
+
+.nav__left{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-left: 25px;
 }
 
 #nav a {
@@ -50,13 +61,28 @@ body {
   background-color: #4a5c66;
   color: white;
   text-decoration: none;
+ 
 }
 .nav__title {
   align-self: center;
+  margin-left: 25px;
+  
+  font-weight: bold;
+  font-size: 24px;
 }
 .nav__buttons {
   display: flex;
-  justify-content: space-between;
+  justify-content: space-between; 
+  font-weight: 500;
+  font-size: 18px;
+}
+.nav__buttons #button{
+  margin-right: 25px;
+  width: 100px;
+  height: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 #nav a.router-link-exact-active {
@@ -127,16 +153,23 @@ body {
   width: 150px;
   height: auto;
   margin: 0 auto;
+
 }
 .footer_center {
   width: 500px;
   float: left;
-  text-align: center;
+  text-align: center; 
 }
 .footer h3 {
   font-size: 30px;
-  font-weight: 100;
+  font-weight: 500;
   margin-top: 70px;
+  margin-left: 40px;
+}
+.footer h4 {
+  margin-left: 40px;
+}
+.footer h5 {
   margin-left: 40px;
 }
 </style>
