@@ -86,6 +86,9 @@ export default defineComponent({
 </script>
 
 <style scoped>
+span {
+  font-size: 48px;
+}
 .container {
   width: 1000px;
   position: relative;
