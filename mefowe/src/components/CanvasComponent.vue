@@ -786,7 +786,7 @@ export default defineComponent({
       () => activeComponent.value,
       () => {
         if (activeComponent.value !== null) {
-          editCompIsActive.value = false
+          editCompIsActive.value = false       
         }
       }
     );
@@ -929,6 +929,7 @@ export default defineComponent({
         stage.children.pop()
       } 
       activeComponent.value = null
+      transformer.value.getNode().nodes([]);
     }
  
     return {
