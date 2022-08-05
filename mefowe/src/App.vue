@@ -1,12 +1,7 @@
 <template>
   <div id="nav">
     <div class="nav__left">
-      <img
-        src="../public/MeFoWeLogoWhite.png"
-        alt="HTML/CSS Quiz Logo"
-        width="70"
-        height="35"
-      />
+      <img src="../public/MeFoWeLogoBlack.png" alt="HTML/CSS Quiz Logo" width="70" height="35">
       <div class="nav__title">HTML/CSS QUIZ</div>
     </div>
     <div class="nav__buttons">
