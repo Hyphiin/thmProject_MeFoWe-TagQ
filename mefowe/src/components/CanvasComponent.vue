@@ -190,8 +190,10 @@ export default defineComponent({
     const width = 1300;
     const height = 1000;
 
+    //helper Lists to update styles later
     const rectList = ref<Rect[]>([]);
     const textList = ref<Text[]>([]);
+    
     const dragItemId = ref<string>("");
     const selectedShapeId = ref<string>();
     const transformer = ref<any>();
@@ -240,10 +242,9 @@ export default defineComponent({
       dragItemId.value = "";
     };
 
+    //---- Compare Feature
     const result = ref<resemble.ComparisonResult>();
-
     const compared = ref<boolean>(false);
-
     const isComparing = ref<boolean>(false);
 
     const compare = () => {
@@ -307,6 +308,7 @@ export default defineComponent({
       isComparing.value = false;
     };
 
+    //---- next Question from strore is loading
     const nextQuestion = () => {
       compared.value = false;
       result.value = undefined;
@@ -320,10 +322,11 @@ export default defineComponent({
       }, 200);
     };
 
+    //---- Function to add a Rectangle to the Layer
     const addRect = () => {
       const transformerNode = transformer.value.getNode();
       const stage = transformerNode.getStage() as Stage;
-
+      //create the new Rect
       var newRect = new Rect({
         id: Math.round(Math.random() * 10000).toString(),
         x: Math.round(Math.random() * width),
@@ -337,15 +340,17 @@ export default defineComponent({
         cornerRadius: Math.round(Math.random() * 5),
       });
       rectList.value.push(newRect);
+      // add new Rect to Layer 3
       if (stage.children) {
         stage.children[2].add(newRect);
       }
     };
 
+    //---- Function to add a Text to the Layer
     const addText = () => {
       const transformerNode = transformer.value.getNode();
       const stage = transformerNode.getStage() as Stage;
-
+      //create the new Text
       var newText = new Text({
         id: Math.round(Math.random() * 10000).toString(),
         x: Math.round(Math.random() * width),
@@ -357,7 +362,7 @@ export default defineComponent({
       });
 
       textList.value.push(newText);
-
+      // attribute to allow User to change innerText on double Click
       newText.on("dblclick dbltap", () => {
         // hide text node and transformer:
         newText.hide();
@@ -455,6 +460,7 @@ export default defineComponent({
           window.addEventListener("click", handleOutsideClick);
         });
       });
+      // add new Text to Layer 3
       if (stage.children) {
         stage.children[2].add(newText);
       }
@@ -831,10 +837,14 @@ export default defineComponent({
       }
     };
 
+    //---- update Styles
+    
+    //helper Vars to check if the Drawer on the right is active
     let drawerIsActive = ref<boolean>(false);
     let editCompIsActive = ref<boolean>(false);
     let activeComponent = ref<Rect | Text | null>(null);
 
+    //closing the Edit Mode, if no Component is active
     watch(
       () => activeComponent.value,
       () => {
@@ -844,26 +854,31 @@ export default defineComponent({
       }
     );
 
+    //Function to change the Backgroundcolor of an Component
     let activeCompBgColor = ref<string>("hello");
+    //watches if activeCompBgColor changes, in input
     watch(
       () => activeCompBgColor.value,
       (newValue) => {
         if (activeComponent.value !== null) {
           const transformerNode = transformer.value.getNode();
           const stage = transformerNode.getStage() as Stage;
-
+          //find the correct Component in the helperLists to change + Rect or Text
           let id = activeComponent.value.attrs.id;
-          let shape = rectList.value.find((r) => r.attrs.id === id);
+          let shape = rectList.value.find((r) => r.attrs.id === id);          
           if (shape && !(shape instanceof Layer)) {
             shape.attrs.fill = newValue;
+            //send the correct new shape to the setActiveAttributes function
             setActiveAttributes(shape as Rect);
           } else {
             const shape = textList.value.find((r) => r.attrs.id === id);
             if (shape && !(shape instanceof Layer)) {
               shape.attrs.fill = newValue;
+              //send the correct new shape to the setActiveAttributes function
               setActiveAttributes(shape as Text);
             }
           }
+          //update the stage
           if (stage.children) {
             stage.add(new Layer());
             stage.children.pop();
@@ -872,6 +887,9 @@ export default defineComponent({
       }
     );
 
+    //-------same as above for the other editable variables
+
+    //for Rect only
     let activeCornerRadius = ref<number>(0);
     watch(
       () => activeCornerRadius.value,
@@ -893,7 +911,7 @@ export default defineComponent({
         }
       }
     );
-
+    //for Rect only
     let activeStroke = ref<string>("");
     watch(
       () => activeStroke.value,
@@ -914,7 +932,7 @@ export default defineComponent({
         }
       }
     );
-
+    //for Rect only
     let activeStrokeWidth = ref<number>(0);
     watch(
       () => activeStrokeWidth.value,
@@ -936,6 +954,7 @@ export default defineComponent({
       }
     );
 
+    //for Text only
     let activeFontSize = ref<number>(0);
     watch(
       () => activeFontSize.value,
@@ -957,7 +976,9 @@ export default defineComponent({
       }
     );
 
-    const setActiveAttributes = (activeComp: Rect | Text) => {
+    //helper Function to change the attributes of the current active Component
+    //gets the correct new shape and sets the activeComp.attrs
+    const setActiveAttributes = (activeComp: Rect | Text) => {      
       activeCompBgColor.value = activeComp.attrs.fill;
       activeCornerRadius.value = activeComp.attrs.cornerRadius;
       activeStroke.value = activeComp.attrs.stroke;
@@ -965,6 +986,7 @@ export default defineComponent({
       activeFontSize.value = activeComp.attrs.fontSize;
     };
 
+    //function to delete a Component
     const deleteComp = () => {
       const transformerNode = transformer.value.getNode();
       const stage = transformerNode.getStage() as Stage;
@@ -976,15 +998,18 @@ export default defineComponent({
               stage.children &&
               stage.children[2].children
             ) {
+              //search for the same id of activeComp (to be deleted) and Child of Layer[2]
               stage.children[2].children?.splice(idx, 1);
             }
           }
         });
       }
+      //update the stage
       if (stage.children) {
         stage.add(new Layer());
         stage.children.pop();
       }
+      //update activeComponent & transformer nodes
       activeComponent.value = null;
       transformer.value.getNode().nodes([]);
     };
