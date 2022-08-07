@@ -12,7 +12,7 @@ git branch -M master
 git push -uf origin master
 ```
 
-## Connect repo with OpenAI
+## Connect Repo with OpenAI
 
 1. Open the following link https://openai.com/api/ and create a new Account if not already done.
 
@@ -24,7 +24,7 @@ git push -uf origin master
 
 5. If not already done, create a new secret key and copy it.
 
-6. No go back to your project and open following File: /src/openAi/openAi.ts
+6. Now go back to your project and open following File: /src/openAi/openAi.ts
 
 7. Now overwrite the existing Api-Key with your newly created one.
 
