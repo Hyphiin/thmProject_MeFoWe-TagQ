@@ -1,8 +1,8 @@
 <template>
   <div id="nav">
     <div class="nav__left">
-      <img src="../public/MeFoWeLogoBlack.png" alt="HTML/CSS Quiz Logo" width="70" height="35">
-      <div class="nav__title">HTML/CSS QUIZ</div>
+      <img src="../public/MeFoWeLogoBlack.png" alt="Tag Q Logo" width="70" height="35">
+      <div class="nav__title">Tag Q</div>
     </div>
     <div class="nav__buttons">
       <router-link id="button" to="/">Startseite</router-link>
@@ -25,11 +25,24 @@
 </template>
 
 <style>
+
+
+
+@font-face {
+  font-family: "Roboto_Regular";
+  src: local("Roboto_Regular"),
+    url(../public/fonts/roboto/Roboto-Regular.ttf) format("truetype");
+}
+@font-face {
+  font-family: "Roboto_Light";
+  src: local("Roboto_Light"),
+    url(../public/fonts/roboto/Roboto-Light.ttf) format("truetype");
+}
 body {
   margin: 0px;
 }
 #app {
-  font-family: Roboto;
+  font-family: "Roboto_Regular";
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
@@ -74,6 +87,7 @@ body {
   justify-content: space-between;
   font-weight: 500;
   font-size: 18px;
+  font-family: "Roboto_Light";
 }
 .nav__buttons #button {
   margin-right: 25px;
@@ -82,6 +96,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  font-family: "Roboto_Light";
 }
 
 #nav a.router-link-exact-active {

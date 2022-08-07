@@ -1,6 +1,7 @@
 <template>
   <div class="startpage">
-    <h1>Wähle eine Option.</h1>
+    <h1>Willkommen!</h1>
+    <h2>Wähle eine Option.</h2>
     <Card @chosen-option="receiveOption" />
   </div>
 </template>
@@ -58,6 +59,7 @@ export default defineComponent({
 </script>
 
 <style scoped>
+
 .startpage {
   color: white;
   margin: 0;
@@ -72,6 +74,10 @@ export default defineComponent({
   height: 100vh;
 }
 h1 {
+  font-family: "Roboto_Light";
+}
+h2 {
   margin-bottom: 50px;
+  font-family: "Roboto_Light";
 }
 </style>

@@ -84,7 +84,6 @@ export default defineComponent({
 <style scoped>
 .home {
   display: flex;
-  padding: 22.5px 50px;
   min-height: 91vh;
 }
 .home__code {

@@ -405,13 +405,17 @@ export default defineComponent({
 </script>
 
 <style scoped>
+
+
+
+
 .learn {
   color: white;
 }
 
 .wrapper {
   display: flex;
-  justify-content: center;
+  justify-content: center; 
 }
 
 .container {
@@ -448,12 +452,14 @@ export default defineComponent({
 
 .container .card .portion .name {
   width: 200px;
+  font-family: consolas;
 }
 
 .container .card .portion .markup {
   width: 200px;
   white-space: pre-wrap;
   text-align: start;
+  font-family: consolas;
 }
 
 .container .card .portion .elementText {
@@ -461,6 +467,7 @@ export default defineComponent({
   flex-grow: 0;
   text-align: start;
   margin-left: 20px;
+  font-family: consolas;
 }
 
 .taller{

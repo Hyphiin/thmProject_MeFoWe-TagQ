@@ -14,7 +14,7 @@
           <v-rect
             :config="{
               width: 1800,
-              height: 1000,
+              height: 1100,
               fill: 'white',
             }"
           />
@@ -171,7 +171,6 @@ import { Layer } from "konva/lib/Layer";
 import resemble from "resemblejs";
 import { Line } from "konva/lib/shapes/Line";
 import { Group } from "konva/lib/Group";
-//import DrawerComponent from "@/components/DrawerComponent.vue"; // @ is an alias to /src
 
 export default defineComponent({
   name: "Canvas",
@@ -186,9 +185,21 @@ export default defineComponent({
       return true;
     },
   },
-  setup(props, context) {
-    const width = 1300;
-    const height = 1000;
+  setup(props, context) {   
+    const width = ref<number>(1600)   
+    const height = ref<number>(1100)
+    if (window.innerWidth < 1441) {
+      width.value =  800
+      height.value = 600
+    } else if (window.innerWidth < 1601) {
+      width.value = 1000
+      height.value = 800
+    } else if (window.innerWidth < 1921) {
+      width.value = 1200
+      height.value = 1000
+    }
+  
+    
 
     //helper Lists to update styles later
     const rectList = ref<Rect[]>([]);
@@ -199,7 +210,7 @@ export default defineComponent({
     const transformer = ref<any>();
     const configKonva = ref({
       width: width,
-      height: height,
+      height: height.value,
     });
 
     onMounted(() => {
@@ -251,12 +262,18 @@ export default defineComponent({
       isComparing.value = true;
       for (var i = document.images.length; i-- > 0; )
         document!.images[i]!.parentNode!.removeChild(document.images[i]);
+        let imgWidth = 600
+        let imgHeight = 380
+      if (window.innerWidth< 1441){
+        imgWidth = 400
+        imgHeight = 280
+      }
 
       if (userImage.value) {
         const comparisonImg = new Image();
         comparisonImg.src = userImage.value;
-        comparisonImg.width = 600;
-        comparisonImg.height = 380;
+        comparisonImg.width = imgWidth;
+        comparisonImg.height = imgHeight;
         comparisonImg.style.margin = "20px";
         comparisonImg.style.marginTop = "80px";
         comparisonImg.style.border = "medium solid grey";
@@ -276,8 +293,8 @@ export default defineComponent({
 
             let compareImage = "";
             stage.toDataURL({
-              width: 1300,
-              height: 1000,
+              width: width.value,
+              height: height.value,
               callback(img) {
                 compareImage = img;
               },
@@ -285,8 +302,8 @@ export default defineComponent({
 
             const canvasImg = new Image();
             canvasImg.src = compareImage;
-            canvasImg.width = 600;
-            canvasImg.height = 380;
+            canvasImg.width = imgWidth;
+            canvasImg.height = imgHeight;
             canvasImg.style.margin = "20px";
             canvasImg.style.marginTop = "80px";
             canvasImg.style.border = "medium solid grey";
@@ -329,8 +346,8 @@ export default defineComponent({
       //create the new Rect
       var newRect = new Rect({
         id: Math.round(Math.random() * 10000).toString(),
-        x: Math.round(Math.random() * width),
-        y: Math.round(Math.random() * height),
+        x: Math.round(Math.random() * width.value),
+        y: Math.round(Math.random() * height.value),
         fill: Util.getRandomColor(),
         width: 100,
         height: 100,
@@ -353,8 +370,8 @@ export default defineComponent({
       //create the new Text
       var newText = new Text({
         id: Math.round(Math.random() * 10000).toString(),
-        x: Math.round(Math.random() * width),
-        y: Math.round(Math.random() * height),
+        x: Math.round(Math.random() * width.value),
+        y: Math.round(Math.random() * height.value),
         fill: Util.getRandomColor(),
         text: "Double Click to edit",
         fontSize: 30,
@@ -473,8 +490,8 @@ export default defineComponent({
       // set clip function to stop leaking lines into non-viewable space.
 
       const // find the x & y size of the grid
-        xSize = width,
-        ySize = height,
+        xSize = width.value,
+        ySize = height.value,
         // compute the number of steps required on each axis.
         xSteps = Math.round(xSize / stepSize),
         ySteps = Math.round(ySize / stepSize);
@@ -512,8 +529,8 @@ export default defineComponent({
     // were can we snap our objects?
     function getLineGuideStops(skipShape: any) {
       // we can snap to stage borders and the center of the stage
-      var vertical: any = [0, width / 2, width];
-      var horizontal: any = [0, height / 2, height];
+      var vertical: any = [0, width.value / 2, width.value];
+      var horizontal: any = [0, height.value / 2, height.value];
 
       // and we snap over edges and center of each object on the canvas
       rectList.value.forEach((guideItem) => {
@@ -1051,12 +1068,17 @@ export default defineComponent({
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+
+
+
+
+
 .canvas__component {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  margin: 20px;
+  margin: 50px 0 25px 0;
 }
 .canvas {
   height: 100%;
@@ -1151,7 +1173,7 @@ a {
   height: 90px;
   margin: 25px;
   padding: 6px 10px;
-  font-family: Roboto;
+  font-family: "Roboto_Regular";
   font-size: 16px;
   font-weight: 500;
   border-radius: 3px;
@@ -1302,6 +1324,16 @@ img {
 
 .wrap {
   max-width: 1300px;
+}
+@media screen and (max-width:1920px) {
+  .wrap {
+      max-width: 1000px;
+    }
+}
+@media screen and (max-width:1440px) {
+  .wrap {
+    max-width: 900px;
+  }
 }
 
 .modal {

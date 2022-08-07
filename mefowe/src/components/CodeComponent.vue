@@ -273,7 +273,7 @@ export default defineComponent({
   align-items: center;
   justify-content: flex-start;
   min-height: 80%;
-  margin: 20px;
+  margin: 50px 0 0 0 ;
   background-color: #21333c;
   color: white;
   border-radius: 0.5em;
