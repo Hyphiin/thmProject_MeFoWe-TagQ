@@ -14,7 +14,7 @@ git push -uf origin master
 
 ## Connect repo with OpenAI
 
-1. Open the following link https://auth0.openai.com/u/signup/identifier?state=hKFo2SBTbUlpOWJhQ2t4Mlo5aTBNekhhLXo2YlJCRzFyTngxU6Fur3VuaXZlcnNhbC1sb2dpbqN0aWTZIGZsVUFUYWkzQ0Y2TERSc0RWaHJHcmFiUWVOT3pOSmJxo2NpZNkgRFJpdnNubTJNdTQyVDNLT3BxZHR3QjNOWXZpSFl6d0Q and create a new Account if not already done.
+1. Open the following link https://openai.com/api/ and create a new Account if not already done.
 
 2. Sign in to your existing Account.
 
